@@ -16,15 +16,19 @@
   "btn.generateKeys": "Generate Key Pair",
   "btn.downloadPublicKey": "Download Public Key (to send to the sender)",
   "btn.downloadPrivateKey": "Download Private Key (store securely)",
+  "btn.deleteKey": "Delete",
+  "btn.clearAllKeys": "Clear All History",
 
   "encrypt.section.title": "2. Encrypt File (using Public Key)",
   "encrypt.section.desc": "Select a local file and encrypt it with the public key",
+  "label.publicKeySelect": "Select a saved public key (or upload a file below):",
   "label.publicKeyFile": "Select public key file:",
   "label.fileToEncrypt": "Select file to encrypt:",
   "btn.encryptFile": "Encrypt File",
 
   "decrypt.section.title": "3. Decrypt File (using Private Key)",
   "decrypt.section.desc": "Select a .encrypted file and decrypt it with your private key",
+  "label.privateKeySelect": "Select a saved private key (or upload a file below):",
   "label.privateKeyFile": "Select private key file:",
   "label.fileToDecrypt": "Select file to decrypt (.encrypted):",
   "btn.decryptFile": "Decrypt File",
@@ -70,5 +74,16 @@
   "error.importPublicKey": "Failed to import public key: {0}",
   "error.importPrivateKey": "Failed to import private key: {0}",
   "error.unsupportedFormat": "Unsupported format: version={0}, algorithm={1}",
-  "error.generic": "Error: {0}"
+  "error.generic": "Error: {0}",
+
+  "keyhistory.title": "Key Pair History",
+  "keyhistory.warning.title": "⚠️ Warning:",
+  "keyhistory.warning.text": "This history is stored in your browser's local storage. Keys may be deleted if you clear your browser cache, reset your browser, or perform a factory reset on your device. Please store important private keys in a separate secure location as well.",
+
+  "select.publicKeyFile": "Load from file",
+  "select.privateKeyFile": "Load from file",
+  "select.keyDate": "Created",
+
+  "confirm.deleteKey": "Are you sure you want to delete this key pair?",
+  "confirm.clearAllKeys": "Are you sure you want to delete all key pair history?"
 }

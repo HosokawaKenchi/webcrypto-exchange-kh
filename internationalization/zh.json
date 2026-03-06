@@ -16,15 +16,19 @@
   "btn.generateKeys": "生成密钥对",
   "btn.downloadPublicKey": "下载公钥（发送给对方）",
   "btn.downloadPrivateKey": "下载私钥（妥善保管）",
+  "btn.deleteKey": "删除",
+  "btn.clearAllKeys": "清除所有历史记录",
 
   "encrypt.section.title": "2. 加密文件（使用公钥）",
   "encrypt.section.desc": "选择本地文件并使用公钥加密",
+  "label.publicKeySelect": "选择已保存的公钥（或下方上传文件）：",
   "label.publicKeyFile": "选择公钥文件：",
   "label.fileToEncrypt": "选择要加密的文件：",
   "btn.encryptFile": "加密文件",
 
   "decrypt.section.title": "3. 解密文件（使用私钥）",
   "decrypt.section.desc": "选择.encrypted文件并使用您的私钥解密",
+  "label.privateKeySelect": "选择已保存的私钥（或下方上传文件）：",
   "label.privateKeyFile": "选择私钥文件：",
   "label.fileToDecrypt": "选择要解密的文件（.encrypted）：",
   "btn.decryptFile": "解密文件",
@@ -70,5 +74,16 @@
   "error.importPublicKey": "导入公钥失败：{0}",
   "error.importPrivateKey": "导入私钥失败：{0}",
   "error.unsupportedFormat": "不支持的格式：version={0}, algorithm={1}",
-  "error.generic": "错误：{0}"
+  "error.generic": "错误：{0}",
+
+  "keyhistory.title": "密钥对历史",
+  "keyhistory.warning.title": "⚠️ 警告：",
+  "keyhistory.warning.text": "此历史记录存储在您的浏览器的本地存储中。如果您清除浏览器缓存、重置浏览器或对设备执行工厂重置，密钥可能会被删除。请同时在其他安全位置存储重要的私钥。",
+
+  "select.publicKeyFile": "从文件加载",
+  "select.privateKeyFile": "从文件加载",
+  "select.keyDate": "创建时间",
+
+  "confirm.deleteKey": "您确定要删除此密钥对吗？",
+  "confirm.clearAllKeys": "您确定要删除所有密钥对历史记录吗？"
 }

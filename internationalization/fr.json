@@ -16,15 +16,19 @@
   "btn.generateKeys": "Générer une paire de clés",
   "btn.downloadPublicKey": "Télécharger la clé publique (envoyer à l'expéditeur)",
   "btn.downloadPrivateKey": "Télécharger la clé privée (conserver en lieu sûr)",
+  "btn.deleteKey": "Supprimer",
+  "btn.clearAllKeys": "Effacer tout l'historique",
 
   "encrypt.section.title": "2. Chiffrer le fichier (en utilisant la clé publique)",
   "encrypt.section.desc": "Sélectionnez un fichier local et chiffrez-le avec la clé publique",
+  "label.publicKeySelect": "Sélectionnez une clé publique enregistrée (ou téléchargez un fichier ci-dessous) :",
   "label.publicKeyFile": "Sélectionner le fichier de clé publique :",
   "label.fileToEncrypt": "Sélectionner le fichier à chiffrer :",
   "btn.encryptFile": "Chiffrer le fichier",
 
   "decrypt.section.title": "3. Déchiffrer le fichier (en utilisant la clé privée)",
   "decrypt.section.desc": "Sélectionnez un fichier .encrypted et déchiffrez-le avec votre clé privée",
+  "label.privateKeySelect": "Sélectionnez une clé privée enregistrée (ou téléchargez un fichier ci-dessous) :",
   "label.privateKeyFile": "Sélectionner le fichier de clé privée :",
   "label.fileToDecrypt": "Sélectionnez le fichier à déchiffrer (.encrypted) :",
   "btn.decryptFile": "Déchiffrer le fichier",
@@ -70,5 +74,16 @@
   "error.importPublicKey": "Erreur lors de l'importation de la clé publique : {0}",
   "error.importPrivateKey": "Erreur lors de l'importation de la clé privée : {0}",
   "error.unsupportedFormat": "Format non supporté : version={0}, algorithm={1}",
-  "error.generic": "Erreur : {0}"
+  "error.generic": "Erreur : {0}",
+
+  "keyhistory.title": "Historique des paires de clés",
+  "keyhistory.warning.title": "⚠️ Avertissement :",
+  "keyhistory.warning.text": "Cet historique est stocké dans le stockage local de votre navigateur. Les clés peuvent être supprimées si vous videz le cache de votre navigateur, réinitialisez votre navigateur ou effectuez une réinitialisation aux paramètres d'usine de votre appareil. Veuillez également stocker les clés privées importantes dans un autre endroit sûr.",
+
+  "select.publicKeyFile": "Charger à partir d'un fichier",
+  "select.privateKeyFile": "Charger à partir d'un fichier",
+  "select.keyDate": "Créé",
+
+  "confirm.deleteKey": "Êtes-vous sûr de vouloir supprimer cette paire de clés ?",
+  "confirm.clearAllKeys": "Êtes-vous sûr de vouloir supprimer tout l'historique des paires de clés ?"
 }

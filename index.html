@@ -144,6 +144,13 @@
             <p data-i18n="encrypt.section.desc">ローカルファイルを選択し、公開鍵で暗号化します</p>
             
             <div class="form-group">
+                <label for="publicKeySelect" data-i18n="label.publicKeySelect">保存済みの公開鍵を選択（または下でファイルをアップロード）：</label>
+                <select id="publicKeySelect" class="file-input">
+                    <option value="" data-i18n="select.publicKeyFile">ファイルから読み込む</option>
+                </select>
+            </div>
+
+            <div class="form-group">
                 <label for="publicKeyFile" data-i18n="label.publicKeyFile">公開鍵ファイルを選択：</label>
                 <input type="file" id="publicKeyFile" accept=".pub,application/x-pem-file" class="file-input">
             </div>
@@ -162,6 +169,13 @@
             <h2 data-i18n="decrypt.section.title">3. ファイル復号（秘密鍵使用）</h2>
             <p data-i18n="decrypt.section.desc">.encryptedファイルを選択し、秘密鍵で復号します</p>
             
+            <div class="form-group">
+                <label for="privateKeySelect" data-i18n="label.privateKeySelect">保存済みの秘密鍵を選択（または下でファイルをアップロード）：</label>
+                <select id="privateKeySelect" class="file-input">
+                    <option value="" data-i18n="select.privateKeyFile">ファイルから読み込む</option>
+                </select>
+            </div>
+
             <div class="form-group">
                 <label for="privateKeyFile" data-i18n="label.privateKeyFile">秘密鍵ファイルを選択：</label>
                 <input type="file" id="privateKeyFile" accept=".pem,application/x-pem-file" class="file-input">

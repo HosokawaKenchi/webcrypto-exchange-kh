@@ -18,15 +18,19 @@
   "btn.generateKeys": "Schlüsselpaar generieren",
   "btn.downloadPublicKey": "Öffentlichen Schlüssel herunterladen (an Absender senden)",
   "btn.downloadPrivateKey": "Privaten Schlüssel herunterladen (sicher aufbewahren)",
+  "btn.deleteKey": "Löschen",
+  "btn.clearAllKeys": "Gesamten Verlauf löschen",
 
   "encrypt.section.title": "2. Datei verschlüsseln (öffentlicher Schlüssel)",
   "encrypt.section.desc": "Wählen Sie eine lokale Datei und verschlüsseln Sie sie mit dem öffentlichen Schlüssel",
+  "label.publicKeySelect": "Gespeicherten öffentlichen Schlüssel wählen (oder Datei unten hochladen):",
   "label.publicKeyFile": "Öffentliche Schlüsseldatei wählen:",
   "label.fileToEncrypt": "Zu verschlüsselnde Datei wählen:",
   "btn.encryptFile": "Datei verschlüsseln",
 
   "decrypt.section.title": "3. Datei entschlüsseln (privater Schlüssel)",
   "decrypt.section.desc": "Wählen Sie die .encrypted-Datei und entschlüsseln Sie sie mit dem privaten Schlüssel",
+  "label.privateKeySelect": "Gespeicherten privaten Schlüssel wählen (oder Datei unten hochladen):",
   "label.privateKeyFile": "Private Schlüsseldatei wählen:",
   "label.fileToDecrypt": "Zu entschlüsselnde Datei wählen (.encrypted):",
   "btn.decryptFile": "Datei entschlüsseln",
@@ -72,5 +76,16 @@
   "error.importPublicKey": "Fehler beim Importieren des öffentlichen Schlüssels: {0}",
   "error.importPrivateKey": "Fehler beim Importieren des privaten Schlüssels: {0}",
   "error.unsupportedFormat": "Nicht unterstütztes Format: version={0}, algorithm={1}",
-  "error.generic": "Fehler: {0}"
+  "error.generic": "Fehler: {0}",
+
+  "keyhistory.title": "Schlüsselpaar-Verlauf",
+  "keyhistory.warning.title": "⚠️ Warnung:",
+  "keyhistory.warning.text": "Dieser Verlauf wird im lokalen Speicher Ihres Browsers gespeichert. Die Schlüssel können gelöscht werden, wenn Sie Ihren Browser-Cache leeren, Ihren Browser zurücksetzen oder ein Fabrikrücksetz auf Ihrem Gerät durchführen. Bitte speichern Sie wichtige private Schlüssel auch an einem anderen sicheren Ort.",
+
+  "select.publicKeyFile": "Aus Datei laden",
+  "select.privateKeyFile": "Aus Datei laden",
+  "select.keyDate": "Erstellt",
+
+  "confirm.deleteKey": "Möchten Sie dieses Schlüsselpaar wirklich löschen?",
+  "confirm.clearAllKeys": "Möchten Sie den gesamten Schlüsselpaar-Verlauf wirklich löschen?"
 }

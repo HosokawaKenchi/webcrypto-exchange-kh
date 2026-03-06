@@ -18,15 +18,19 @@
   "btn.generateKeys": "키 쌍 생성",
   "btn.downloadPublicKey": "공개 키 다운로드(상대에게 전송)",
   "btn.downloadPrivateKey": "개인 키 다운로드(안전하게 보관)",
+  "btn.deleteKey": "삭제",
+  "btn.clearAllKeys": "모든 이력 지우기",
 
   "encrypt.section.title": "2. 파일 암호화(공개 키 사용)",
   "encrypt.section.desc": "로컬 파일을 선택하고 공개 키로 암호화합니다",
+  "label.publicKeySelect": "저장된 공개 키 선택(또는 아래에서 파일 업로드):",
   "label.publicKeyFile": "공개 키 파일 선택:",
   "label.fileToEncrypt": "암호화할 파일 선택:",
   "btn.encryptFile": "파일 암호화",
 
   "decrypt.section.title": "3. 파일 복호화(개인 키 사용)",
   "decrypt.section.desc": ".encrypted 파일을 선택하고 개인 키로 복호화합니다",
+  "label.privateKeySelect": "저장된 개인 키 선택(또는 아래에서 파일 업로드):",
   "label.privateKeyFile": "개인 키 파일 선택:",
   "label.fileToDecrypt": "복호화할 파일 선택(.encrypted):",
   "btn.decryptFile": "파일 복호화",
@@ -72,5 +76,16 @@
   "error.importPublicKey": "공개 키 가져오기 실패: {0}",
   "error.importPrivateKey": "개인 키 가져오기 실패: {0}",
   "error.unsupportedFormat": "지원되지 않는 형식: version={0}, algorithm={1}",
-  "error.generic": "오류: {0}"
+  "error.generic": "오류: {0}",
+
+  "keyhistory.title": "키 쌍 이력",
+  "keyhistory.warning.title": "⚠️ 경고:",
+  "keyhistory.warning.text": "이 이력은 브라우저의 로컬 저장소에 저장됩니다. 브라우저 캐시 삭제, 브라우저 재설정 또는 기기의 출장 초기화 등으로 인해 저장된 키가 삭제될 수 있습니다. 중요한 개인 키는 다른 안전한 장소에도 저장해 주세요.",
+
+  "select.publicKeyFile": "파일에서 로드",
+  "select.privateKeyFile": "파일에서 로드",
+  "select.keyDate": "생성됨",
+
+  "confirm.deleteKey": "이 키 쌍을 삭제하시겠습니까?",
+  "confirm.clearAllKeys": "모든 키 쌍 이력을 삭제하시겠습니까?"
 }

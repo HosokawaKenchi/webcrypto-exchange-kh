@@ -18,15 +18,19 @@
   "btn.generateKeys": "キーペアを生成",
   "btn.downloadPublicKey": "公開鍵をダウンロード（相手に送る）",
   "btn.downloadPrivateKey": "秘密鍵をダウンロード（手元に保管）",
+  "btn.deleteKey": "削除",
+  "btn.clearAllKeys": "履歴をすべてクリア",
 
   "encrypt.section.title": "2. ファイル暗号化（公開鍵使用）",
   "encrypt.section.desc": "ローカルファイルを選択し、公開鍵で暗号化します",
+  "label.publicKeySelect": "保存済みの公開鍵を選択（または下でファイルをアップロード）：",
   "label.publicKeyFile": "公開鍵ファイルを選択：",
   "label.fileToEncrypt": "暗号化するファイルを選択：",
   "btn.encryptFile": "ファイルを暗号化",
 
   "decrypt.section.title": "3. ファイル復号（秘密鍵使用）",
   "decrypt.section.desc": ".encryptedファイルを選択し、秘密鍵で復号します",
+  "label.privateKeySelect": "保存済みの秘密鍵を選択（または下でファイルをアップロード）：",
   "label.privateKeyFile": "秘密鍵ファイルを選択：",
   "label.fileToDecrypt": "復号するファイル（.encrypted）を選択：",
   "btn.decryptFile": "ファイルを復号",
@@ -72,5 +76,16 @@
   "error.importPublicKey": "公開鍵のインポートに失敗しました: {0}",
   "error.importPrivateKey": "秘密鍵のインポートに失敗しました: {0}",
   "error.unsupportedFormat": "サポートされていないフォーマット: version={0}, algorithm={1}",
-  "error.generic": "エラー: {0}"
+  "error.generic": "エラー: {0}",
+
+  "keyhistory.title": "鍵ペア履歴",
+  "keyhistory.warning.title": "⚠️ 注意：",
+  "keyhistory.warning.text": "このリストはブラウザのLocalStorageに保存されています。ブラウザキャッシュの削除、ブラウザのリセット、デバイスの工場出荷時リセットなどにより、保存されたキーが削除される場合があります。重要な秘密鍵は別の安全な場所にも保管してください。",
+
+  "select.publicKeyFile": "ファイルから読み込む",
+  "select.privateKeyFile": "ファイルから読み込む",
+  "select.keyDate": "生成日",
+
+  "confirm.deleteKey": "このキーペアを削除してもよろしいですか？",
+  "confirm.clearAllKeys": "すべての鍵ペア履歴を削除してもよろしいですか？"
 }

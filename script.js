@@ -2,6 +2,46 @@
 let publicKey = null;
 let privateKey = null;
 
+// LocalStorage key for storing key history
+const KEY_HISTORY_STORAGE_KEY = 'wcx-key-history';
+
+// LocalStorage management functions
+function getKeyHistory() {
+    const stored = localStorage.getItem(KEY_HISTORY_STORAGE_KEY);
+    return stored ? JSON.parse(stored) : [];
+}
+
+function saveKeyToHistory(publicKeyPem, privateKeyPem) {
+    const date = new Date().toISOString().slice(0, 10);
+    const timestamp = new Date().getTime();
+    const keyEntry = {
+        id: timestamp,
+        date: date,
+        timestamp: timestamp,
+        publicKeyPem: publicKeyPem,
+        privateKeyPem: privateKeyPem
+    };
+    
+    const history = getKeyHistory();
+    history.push(keyEntry);
+    // Keep only last 10 key pairs to limit storage
+    if (history.length > 10) {
+        history.shift();
+    }
+    localStorage.setItem(KEY_HISTORY_STORAGE_KEY, JSON.stringify(history));
+    return keyEntry;
+}
+
+function deleteKeyFromHistory(id) {
+    let history = getKeyHistory();
+    history = history.filter(entry => entry.id !== id);
+    localStorage.setItem(KEY_HISTORY_STORAGE_KEY, JSON.stringify(history));
+}
+
+function clearAllKeyHistory() {
+    localStorage.removeItem(KEY_HISTORY_STORAGE_KEY);
+}
+
 // Utility functions for key conversion
 function arrayBufferToBase64(buffer) {
     const bytes = new Uint8Array(buffer);
@@ -50,9 +90,27 @@ async function generateKeyPair() {
         publicKey = keyPair.publicKey;
         privateKey = keyPair.privateKey;
 
+        // Export and save to history
+        try {
+            const publicKeyExported = await window.crypto.subtle.exportKey('spki', publicKey);
+            const publicKeyBase64 = arrayBufferToBase64(publicKeyExported);
+            const publicKeyPem = formatPEM(publicKeyBase64, 'PUBLIC KEY');
+
+            const privateKeyExported = await window.crypto.subtle.exportKey('pkcs8', privateKey);
+            const privateKeyBase64 = arrayBufferToBase64(privateKeyExported);
+            const privateKeyPem = formatPEM(privateKeyBase64, 'PRIVATE KEY');
+
+            saveKeyToHistory(publicKeyPem, privateKeyPem);
+        } catch (error) {
+            console.warn('Failed to save key to history:', error);
+        }
+
         showStatus('keyStatus', 'success', I18N.t('status.keyGenerated'));
         document.getElementById('downloadKeysContainer').style.display = 'block';
         document.getElementById('generateKeysBtn').disabled = true;
+        
+        // Update key history display
+        updateKeyHistoryDisplay();
 
     } catch (error) {
         showStatus('keyStatus', 'error', I18N.t('error.generic', error.message));
@@ -173,18 +231,38 @@ function readFileAsArrayBuffer(file) {
 // Encrypt file with public key (Hybrid encryption: AES-256-GCM + RSA-OAEP)
 async function encryptFile() {
     try {
-        const publicKeyFile = document.getElementById('publicKeyFile').files[0];
+        const publicKeyFileInput = document.getElementById('publicKeyFile');
+        const publicKeySelectInput = document.getElementById('publicKeySelect');
         const fileToEncrypt = document.getElementById('fileToEncrypt').files[0];
 
-        if (!publicKeyFile || !fileToEncrypt) {
+        if (!fileToEncrypt) {
+            throw new Error(I18N.t('error.selectBoth.encrypt'));
+        }
+
+        let pubKey;
+        let publicKeyFileSelected = publicKeyFileInput.files[0];
+
+        // Try to use selected key from history first
+        if (publicKeySelectInput && publicKeySelectInput.value) {
+            const keyEntry = getKeyHistory().find(
+                entry => entry.id === parseInt(publicKeySelectInput.value)
+            );
+            if (keyEntry) {
+                pubKey = await importPublicKeyFromPEM(keyEntry.publicKeyPem);
+            }
+        }
+
+        // Fall back to file upload if no history selection
+        if (!pubKey && publicKeyFileSelected) {
+            const pemContent = await readFileAsText(publicKeyFileSelected);
+            pubKey = await importPublicKeyFromPEM(pemContent);
+        }
+
+        if (!pubKey) {
             throw new Error(I18N.t('error.selectBoth.encrypt'));
         }
 
         showStatus('encryptStatus', 'info', I18N.t('status.encrypting'));
-
-        // Import public key
-        const pemContent = await readFileAsText(publicKeyFile);
-        const pubKey = await importPublicKeyFromPEM(pemContent);
 
         // Read file to encrypt
         const fileBuffer = await readFileAsArrayBuffer(fileToEncrypt);
@@ -233,7 +311,7 @@ async function encryptFile() {
         downloadFile(encryptedJson, `${fileToEncrypt.name}.encrypted`, 'application/json');
 
         showStatus('encryptStatus', 'success', I18N.t('status.encrypted', `${fileToEncrypt.name}.encrypted`));
-        document.getElementById('publicKeyFile').value = '';
+        publicKeyFileInput.value = '';
         document.getElementById('fileToEncrypt').value = '';
 
     } catch (error) {
@@ -245,18 +323,38 @@ async function encryptFile() {
 // Decrypt file with private key
 async function decryptFile() {
     try {
-        const privateKeyFile = document.getElementById('privateKeyFile').files[0];
+        const privateKeyFileInput = document.getElementById('privateKeyFile');
+        const privateKeySelectInput = document.getElementById('privateKeySelect');
         const fileToDecrypt = document.getElementById('fileToDecrypt').files[0];
 
-        if (!privateKeyFile || !fileToDecrypt) {
+        if (!fileToDecrypt) {
+            throw new Error(I18N.t('error.selectBoth.decrypt'));
+        }
+
+        let privKey;
+        let privateKeyFileSelected = privateKeyFileInput.files[0];
+
+        // Try to use selected key from history first (default: latest)
+        if (privateKeySelectInput && privateKeySelectInput.value) {
+            const keyEntry = getKeyHistory().find(
+                entry => entry.id === parseInt(privateKeySelectInput.value)
+            );
+            if (keyEntry) {
+                privKey = await importPrivateKeyFromPEM(keyEntry.privateKeyPem);
+            }
+        }
+
+        // Fall back to file upload if no history selection
+        if (!privKey && privateKeyFileSelected) {
+            const pemContent = await readFileAsText(privateKeyFileSelected);
+            privKey = await importPrivateKeyFromPEM(pemContent);
+        }
+
+        if (!privKey) {
             throw new Error(I18N.t('error.selectBoth.decrypt'));
         }
 
         showStatus('decryptStatus', 'info', I18N.t('status.decrypting'));
-
-        // Import private key
-        const pemContent = await readFileAsText(privateKeyFile);
-        const privKey = await importPrivateKeyFromPEM(pemContent);
 
         // Read encrypted package
         const encryptedJson = await readFileAsText(fileToDecrypt);
@@ -319,7 +417,7 @@ async function decryptFile() {
         URL.revokeObjectURL(url);
 
         showStatus('decryptStatus', 'success', I18N.t('status.decrypted', originalFilename));
-        document.getElementById('privateKeyFile').value = '';
+        privateKeyFileInput.value = '';
         document.getElementById('fileToDecrypt').value = '';
 
     } catch (error) {
@@ -349,6 +447,131 @@ function showStatus(elementId, type, message) {
     element.style.display = 'block';
 }
 
+// Update key history display
+function updateKeyHistoryDisplay() {
+    const history = getKeyHistory();
+    let historyContainer = document.getElementById('keyHistoryContainer');
+    
+    if (!historyContainer) {
+        const downloadKeysContainer = document.getElementById('downloadKeysContainer');
+        historyContainer = document.createElement('div');
+        historyContainer.id = 'keyHistoryContainer';
+        downloadKeysContainer.parentNode.insertBefore(historyContainer, downloadKeysContainer.nextSibling);
+    }
+    
+    if (history.length === 0) {
+        historyContainer.innerHTML = '';
+        return;
+    }
+    
+    let html = `
+        <div class="key-history-section">
+            <h3 data-i18n="keyhistory.title">鍵ペア履歴</h3>
+            <p class="note" style="background-color: #fff3cd; border: 1px solid #ffc107; border-radius: 5px; padding: 12px; margin-bottom: 15px; color: #856404;">
+                <strong data-i18n="keyhistory.warning.title">⚠️ 注意：</strong> <span data-i18n="keyhistory.warning.text">このリストはブラウザのLocalStorageに保存されています。ブラウザキャッシュの削除、ブラウザのリセット、デバイスの工場出荷時リセットなどにより、保存されたキーが削除される場合があります。重要な秘密鍵は別の安全な場所にも保管してください。</span>
+            </p>
+            <div class="key-history-list">
+    `;
+    
+    // Display in reverse order (newest first)
+    history.slice().reverse().forEach((entry) => {
+        const date = entry.date;
+        html += `
+            <div class="key-history-item">
+                <div class="key-history-info">
+                    <span class="key-history-date">${date}</span>
+                </div>
+                <div class="key-history-buttons">
+                    <button class="btn btn-secondary key-download-btn" data-id="${entry.id}" data-type="public" data-i18n="btn.downloadPublicKey">公開鍵をダウンロード</button>
+                    <button class="btn btn-secondary key-download-btn" data-id="${entry.id}" data-type="private" data-i18n="btn.downloadPrivateKey">秘密鍵をダウンロード</button>
+                    <button class="btn btn-danger key-delete-btn" data-id="${entry.id}" data-i18n="btn.deleteKey">削除</button>
+                </div>
+            </div>
+        `;
+    });
+    
+    html += `
+            </div>
+            <button class="btn btn-danger" id="clearAllKeysBtn" data-i18n="btn.clearAllKeys">履歴をすべてクリア</button>
+        </div>
+    `;
+    
+    historyContainer.innerHTML = html;
+    
+    // Apply i18n to newly created elements
+    I18N.applyToDOM(historyContainer);
+    
+    // Attach event listeners
+    historyContainer.querySelectorAll('.key-download-btn').forEach(btn => {
+        btn.addEventListener('click', async (e) => {
+            const id = parseInt(e.target.dataset.id);
+            const type = e.target.dataset.type;
+            const entry = history.find(h => h.id === id);
+            if (entry) {
+                const date = entry.date;
+                if (type === 'public') {
+                    downloadFile(entry.publicKeyPem, `public_key_${date}.pub`, 'text/plain');
+                } else {
+                    downloadFile(entry.privateKeyPem, `private_key_${date}.pem`, 'text/plain');
+                }
+            }
+        });
+    });
+    
+    historyContainer.querySelectorAll('.key-delete-btn').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+            const id = parseInt(e.target.dataset.id);
+            if (confirm(I18N.t('confirm.deleteKey'))) {
+                deleteKeyFromHistory(id);
+                updateKeyHistoryDisplay();
+                updateKeySelectors();
+            }
+        });
+    });
+    
+    const clearAllBtn = historyContainer.querySelector('#clearAllKeysBtn');
+    if (clearAllBtn) {
+        clearAllBtn.addEventListener('click', () => {
+            if (confirm(I18N.t('confirm.clearAllKeys'))) {
+                clearAllKeyHistory();
+                updateKeyHistoryDisplay();
+                updateKeySelectors();
+            }
+        });
+    }
+}
+
+// Update key selector dropdowns
+function updateKeySelectors() {
+    const history = getKeyHistory();
+    
+    const publicKeySelect = document.getElementById('publicKeySelect');
+    const privateKeySelect = document.getElementById('privateKeySelect');
+    
+    if (!publicKeySelect || !privateKeySelect) return;
+    
+    const defaultPublicHtml = `<option value="">${I18N.t('select.publicKeyFile')}</option>`;
+    const defaultPrivateHtml = `<option value="">${I18N.t('select.privateKeyFile')}</option>`;
+    
+    let publicHtml = defaultPublicHtml;
+    let privateHtml = defaultPrivateHtml;
+    
+    history.forEach((entry) => {
+        const date = entry.date;
+        publicHtml += `<option value="${entry.id}">${I18N.t('select.keyDate')}: ${date}</option>`;
+        privateHtml += `<option value="${entry.id}">${I18N.t('select.keyDate')}: ${date}</option>`;
+    });
+    
+    publicKeySelect.innerHTML = publicHtml;
+    privateKeySelect.innerHTML = privateHtml;
+    
+    // Default: latest key for decryption
+    if (history.length > 0) {
+        const latestId = history[history.length - 1].id;
+        privateKeySelect.value = latestId;
+    }
+}
+
 // Event listeners
 document.addEventListener('DOMContentLoaded', async () => {
     // Initialize i18n first (loads translations and applies to DOM)
@@ -359,6 +582,10 @@ document.addEventListener('DOMContentLoaded', async () => {
     document.getElementById('downloadPrivateKeyBtn').addEventListener('click', downloadPrivateKey);
     document.getElementById('encryptFileBtn').addEventListener('click', encryptFile);
     document.getElementById('decryptFileBtn').addEventListener('click', decryptFile);
+
+    // Initialize key history display
+    updateKeyHistoryDisplay();
+    updateKeySelectors();
 
     // Language selector
     const langSelector = document.getElementById('langSelector');
@@ -378,6 +605,9 @@ document.addEventListener('DOMContentLoaded', async () => {
                 descriptionIframe.style.display = '';
                 descriptionIframe.src = '';
             }
+            // Update key history display with new language
+            updateKeyHistoryDisplay();
+            updateKeySelectors();
         });
     }
     

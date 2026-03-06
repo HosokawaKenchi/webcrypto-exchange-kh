@@ -16,15 +16,19 @@
   "btn.generateKeys": "Generar par de claves",
   "btn.downloadPublicKey": "Descargar clave pública (enviar al remitente)",
   "btn.downloadPrivateKey": "Descargar clave privada (guardar de forma segura)",
+  "btn.deleteKey": "Eliminar",
+  "btn.clearAllKeys": "Limpiar todo el historial",
 
   "encrypt.section.title": "2. Cifrar archivo (usando clave pública)",
   "encrypt.section.desc": "Seleccione un archivo local y ciérrelo con la clave pública",
+  "label.publicKeySelect": "Seleccione una clave pública guardada (o cargue un archivo debajo):",
   "label.publicKeyFile": "Seleccionar archivo de clave pública:",
   "label.fileToEncrypt": "Seleccionar archivo a cifrar:",
   "btn.encryptFile": "Cifrar archivo",
 
   "decrypt.section.title": "3. Descifrar archivo (usando clave privada)",
   "decrypt.section.desc": "Seleccione un archivo .encrypted y descífrelo con su clave privada",
+  "label.privateKeySelect": "Seleccione una clave privada guardada (o cargue un archivo debajo):",
   "label.privateKeyFile": "Seleccionar archivo de clave privada:",
   "label.fileToDecrypt": "Seleccione el archivo a descifrar (.encrypted):",
   "btn.decryptFile": "Descifrar archivo",
@@ -70,5 +74,16 @@
   "error.importPublicKey": "Error al importar clave pública: {0}",
   "error.importPrivateKey": "Error al importar clave privada: {0}",
   "error.unsupportedFormat": "Formato no admitido: version={0}, algorithm={1}",
-  "error.generic": "Error: {0}"
+  "error.generic": "Error: {0}",
+
+  "keyhistory.title": "Historial de pares de claves",
+  "keyhistory.warning.title": "⚠️ Advertencia:",
+  "keyhistory.warning.text": "Este historial se almacena en el almacenamiento local de su navegador. Las claves pueden eliminarse si borra el caché de su navegador, reinicia su navegador o realiza un restablecimiento de fábrica en su dispositivo. Por favor, también guarde las claves privadas importantes en otra ubicación segura.",
+
+  "select.publicKeyFile": "Cargar desde archivo",
+  "select.privateKeyFile": "Cargar desde archivo",
+  "select.keyDate": "Creado",
+
+  "confirm.deleteKey": "¿Está seguro de que desea eliminar este par de claves?",
+  "confirm.clearAllKeys": "¿Está seguro de que desea eliminar todo el historial de pares de claves?"
 }
