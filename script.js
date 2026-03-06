@@ -631,19 +631,21 @@ document.addEventListener('DOMContentLoaded', async () => {
     if (langSelector) {
         langSelector.addEventListener('change', async (e) => {
             await I18N.setLang(e.target.value);
-            // Reset description so it reloads in the new language
-            descriptionLoaded = false;
-            const inlineContainer = document.getElementById('descriptionInline');
-            if (inlineContainer) inlineContainer.remove();
-            const notice = document.getElementById('descriptionFrameNotice');
-            if (notice) notice.remove();
-            // Remove previously injected description styles to avoid duplication
-            injectedStyleIds.forEach(id => { const el = document.getElementById(id); if (el) el.remove(); });
-            injectedStyleIds.clear();
-            if (descriptionIframe) {
-                descriptionIframe.style.display = '';
-                descriptionIframe.src = '';
-            }
+                // Reset description so it reloads in the new language
+                descriptionLoaded = false;
+                const inlineContainer = document.getElementById('descriptionInline');
+                if (inlineContainer) inlineContainer.remove();
+                const shadowHost = document.getElementById('descriptionShadowHost');
+                if (shadowHost) shadowHost.remove();
+                const notice = document.getElementById('descriptionFrameNotice');
+                if (notice) notice.remove();
+                // Remove previously injected description styles in head (legacy path)
+                injectedStyleIds.forEach(id => { const el = document.getElementById(id); if (el) el.remove(); });
+                injectedStyleIds.clear();
+                if (descriptionIframe) {
+                    descriptionIframe.style.display = '';
+                    descriptionIframe.src = '';
+                }
             // Update key history display with new language
             updateKeyHistoryDisplay();
             updateKeySelectors();
@@ -679,48 +681,54 @@ document.addEventListener('DOMContentLoaded', async () => {
                 const parser = new DOMParser();
                 const doc = parser.parseFromString(text, 'text/html');
 
-                // Inject <style> tags from the fetched document into current head (only once)
+                // Create or reuse a host element and attach a Shadow DOM to isolate injected styles
+                let host = document.getElementById('descriptionShadowHost');
+                if (!host) {
+                    host = document.createElement('div');
+                    host.id = 'descriptionShadowHost';
+                    host.style.overflow = 'auto';
+                    host.style.padding = '16px';
+                    host.style.flex = '1 1 auto';
+                    // place it before iframe/notice so it's the main visible content
+                    descriptionPanelContent.appendChild(host);
+                }
+
+                // Attach (or reuse) an open shadow root on the host
+                const shadow = host.shadowRoot || host.attachShadow({ mode: 'open' });
+
+                // Inject <style> tags from fetched document into the shadow root
                 const styles = doc.querySelectorAll('head style');
-                styles.forEach((s, idx) => {
-                    const id = 'desc-style-' + idx;
-                    if (!injectedStyleIds.has(id)) {
-                        const ns = document.createElement('style');
-                        ns.textContent = s.textContent;
-                        ns.id = id;
-                        document.head.appendChild(ns);
-                        injectedStyleIds.add(id);
-                    }
+                styles.forEach((s) => {
+                    const ns = document.createElement('style');
+                    ns.textContent = s.textContent;
+                    shadow.appendChild(ns);
                 });
 
-                // If there are link[rel=stylesheet], append them as well
+                // For link[rel=stylesheet], use @import inside a style in the shadow to preserve isolation
                 const links = doc.querySelectorAll('head link[rel="stylesheet"]');
                 links.forEach((lnk) => {
                     try {
                         const href = lnk.getAttribute('href');
                         if (href) {
-                            const linkEl = document.createElement('link');
-                            linkEl.rel = 'stylesheet';
-                            // resolve relative href
-                            linkEl.href = new URL(href, descriptionUrl).href;
-                            document.head.appendChild(linkEl);
+                            const resolved = new URL(href, descriptionUrl).href;
+                            const importStyle = document.createElement('style');
+                            importStyle.textContent = `@import url("${resolved}");`;
+                            shadow.appendChild(importStyle);
                         }
                     } catch (e) {
                         // ignore
                     }
                 });
 
-                // Insert body content into a container inside the modal
-                let inlineContainer = document.getElementById('descriptionInline');
-                if (!inlineContainer) {
-                    inlineContainer = document.createElement('div');
-                    inlineContainer.id = 'descriptionInline';
-                    inlineContainer.style.overflow = 'auto';
-                    inlineContainer.style.padding = '16px';
-                    inlineContainer.style.flex = '1 1 auto';
-                    descriptionPanelContent.appendChild(inlineContainer);
+                // Insert body content into the shadow root
+                // Wrap inside a container to keep layout predictable
+                let shadowInner = shadow.getElementById ? shadow.getElementById('descriptionShadowInner') : null;
+                if (!shadowInner) {
+                    shadowInner = document.createElement('div');
+                    shadowInner.id = 'descriptionShadowInner';
+                    shadow.appendChild(shadowInner);
                 }
-
-                inlineContainer.innerHTML = doc.body.innerHTML;
+                shadowInner.innerHTML = doc.body.innerHTML;
 
                 // Hide iframe if present
                 if (descriptionIframe) descriptionIframe.style.display = 'none';
