@@ -163,7 +163,7 @@ function readFileAsArrayBuffer(file) {
     });
 }
 
-// Encrypt file with public key
+// Encrypt file with public key (Hybrid encryption: AES-256-GCM + RSA-OAEP)
 async function encryptFile() {
     try {
         const publicKeyFile = document.getElementById('publicKeyFile').files[0];
@@ -183,20 +183,43 @@ async function encryptFile() {
         const fileBuffer = await readFileAsArrayBuffer(fileToEncrypt);
         const fileData = new Uint8Array(fileBuffer);
 
-        // Encrypt using RSA-OAEP
-        const encryptedData = await window.crypto.subtle.encrypt(
-            { name: 'RSA-OAEP' },
-            pubKey,
+        // Generate random AES key for file encryption
+        const aesKey = await window.crypto.subtle.generateKey(
+            { name: 'AES-GCM', length: 256 },
+            true,
+            ['encrypt', 'decrypt']
+        );
+
+        // Generate random IV for AES-GCM
+        const iv = window.crypto.getRandomValues(new Uint8Array(12));
+
+        // Encrypt file with AES-GCM
+        const encryptedFile = await window.crypto.subtle.encrypt(
+            { name: 'AES-GCM', iv: iv },
+            aesKey,
             fileData
         );
 
-        // Create WCX file (JSON format containing encrypted data and original filename)
+        // Export AES key to raw format for RSA encryption
+        const aesKeyRaw = await window.crypto.subtle.exportKey('raw', aesKey);
+        const aesKeyBytes = new Uint8Array(aesKeyRaw);
+
+        // Encrypt AES key with RSA-OAEP
+        const encryptedAesKey = await window.crypto.subtle.encrypt(
+            { name: 'RSA-OAEP' },
+            pubKey,
+            aesKeyBytes
+        );
+
+        // Create WCX file (JSON format containing encrypted data, encrypted AES key, and IV)
         const wcxContent = {
-            version: '1.0',
-            algorithm: 'RSA-OAEP',
+            version: '2.0',
+            algorithm: 'AES-256-GCM-RSA-OAEP',
             hash: 'SHA-256',
             originalFilename: fileToEncrypt.name,
-            encryptedData: arrayBufferToBase64(encryptedData)
+            iv: arrayBufferToBase64(iv),
+            encryptedAesKey: arrayBufferToBase64(encryptedAesKey),
+            encryptedData: arrayBufferToBase64(encryptedFile)
         };
 
         const wcxJson = JSON.stringify(wcxContent, null, 2);
@@ -207,7 +230,8 @@ async function encryptFile() {
         document.getElementById('fileToEncrypt').value = '';
 
     } catch (error) {
-        showStatus('encryptStatus', 'error', `エラー: ${error.message}`);
+        console.error('Encryption error:', error);
+        showStatus('encryptStatus', 'error', `エラー: ${error.message || error}`);
     }
 }
 
@@ -231,17 +255,48 @@ async function decryptFile() {
         const wcxContent = await readFileAsText(fileToDecrypt);
         const wcxData = JSON.parse(wcxContent);
 
-        if (wcxData.algorithm !== 'RSA-OAEP') {
-            throw new Error(`サポートされていないアルゴリズム: ${wcxData.algorithm}`);
-        }
+        // Handle both old (v1.0) and new (v2.0) formats
+        let decryptedData;
 
-        // Decrypt using RSA-OAEP
-        const encryptedBuffer = base64ToArrayBuffer(wcxData.encryptedData);
-        const decryptedData = await window.crypto.subtle.decrypt(
-            { name: 'RSA-OAEP' },
-            privKey,
-            encryptedBuffer
-        );
+        if (wcxData.version === '2.0' && wcxData.algorithm === 'AES-256-GCM-RSA-OAEP') {
+            // New hybrid encryption format
+            // Decrypt AES key with RSA-OAEP
+            const encryptedAesKeyBuffer = base64ToArrayBuffer(wcxData.encryptedAesKey);
+            const aesKeyBytes = await window.crypto.subtle.decrypt(
+                { name: 'RSA-OAEP' },
+                privKey,
+                encryptedAesKeyBuffer
+            );
+
+            // Import AES key
+            const aesKey = await window.crypto.subtle.importKey(
+                'raw',
+                aesKeyBytes,
+                { name: 'AES-GCM' },
+                false,
+                ['decrypt']
+            );
+
+            // Decrypt file with AES key
+            const encryptedBuffer = base64ToArrayBuffer(wcxData.encryptedData);
+            const iv = base64ToArrayBuffer(wcxData.iv);
+
+            decryptedData = await window.crypto.subtle.decrypt(
+                { name: 'AES-GCM', iv: new Uint8Array(iv) },
+                aesKey,
+                encryptedBuffer
+            );
+        } else if (wcxData.version === '1.0' && wcxData.algorithm === 'RSA-OAEP') {
+            // Old format: direct RSA-OAEP encryption (backward compatibility)
+            const encryptedBuffer = base64ToArrayBuffer(wcxData.encryptedData);
+            decryptedData = await window.crypto.subtle.decrypt(
+                { name: 'RSA-OAEP' },
+                privKey,
+                encryptedBuffer
+            );
+        } else {
+            throw new Error(`サポートされていないフォーマット: version=${wcxData.version}, algorithm=${wcxData.algorithm}`);
+        }
 
         // Download decrypted file
         const originalFilename = wcxData.originalFilename || 'decrypted_file';
@@ -261,7 +316,8 @@ async function decryptFile() {
         document.getElementById('fileToDecrypt').value = '';
 
     } catch (error) {
-        showStatus('decryptStatus', 'error', `エラー: ${error.message}`);
+        console.error('Decryption error:', error);
+        showStatus('decryptStatus', 'error', `エラー: ${error.message || error}`);
     }
 }
 
