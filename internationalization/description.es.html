@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cifrado Seguro de Archivos Adjuntos por Correo — WebCrypto Exchange KH</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            line-height: 1.8; color: #333;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            min-height: 100vh; padding: 20px;
+        }
+        .container { max-width: 900px; margin: 0 auto; background: white; border-radius: 10px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.1); padding: 40px; }
+        h1 { color: #2c3e50; font-size: 2.2em; margin-bottom: 30px;
+            border-bottom: 3px solid #3498db; padding-bottom: 20px; }
+        h2 { color: #34495e; font-size: 1.8em; margin-top: 40px; margin-bottom: 20px;
+            padding-left: 15px; border-left: 4px solid #e74c3c; }
+        h3 { color: #34495e; font-size: 1.4em; margin-top: 25px; margin-bottom: 15px; }
+        p { margin-bottom: 15px; text-align: justify; }
+        strong { color: #e74c3c; font-weight: bold; }
+        ul, ol { margin-left: 30px; margin-bottom: 20px; }
+        li { margin-bottom: 10px; }
+        a { color: #3498db; text-decoration: none; border-bottom: 1px dotted #3498db; }
+        a:hover { color: #2980b9; border-bottom: 1px solid #2980b9; }
+        .intro { background: #e8f4f8; padding: 20px; border-radius: 8px;
+            margin-bottom: 30px; border-left: 4px solid #3498db; }
+        .warning { background: #fff3cd; padding: 20px; border-radius: 8px;
+            margin: 20px 0; border-left: 4px solid #ffc107; }
+        .note { background: #d4edda; padding: 20px; border-radius: 8px;
+            margin: 20px 0; border-left: 4px solid #28a745; }
+        table { width: 100%; border-collapse: collapse; margin: 20px 0; }
+        th, td { border: 1px solid #bdc3c7; padding: 12px; text-align: left; }
+        th { background-color: #3498db; color: white; font-weight: bold; }
+        code { background: #f4f4f4; padding: 2px 6px; border-radius: 3px;
+            font-family: 'Courier New', monospace; color: #e74c3c; }
+        @media (max-width: 768px) {
+            .container { padding: 20px; }
+            h1 { font-size: 1.8em; } h2 { font-size: 1.5em; }
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h1>Cifrado Seguro para Archivos Adjuntos por Correo</h1>
+
+    <div class="intro">
+        <p>Enviar un archivo ZIP protegido con contraseña y luego enviar la contraseña en un correo separado es una práctica que <strong>muchas agencias gubernamentales y empresas han abandonado</strong>, reconociendo que proporciona prácticamente ningún beneficio de seguridad e incluso aumenta el riesgo.</p>
+    </div>
+
+    <h2>¿Por Qué ZIP + Contraseña en Texto Plano es Peligroso?</h2>
+
+    <h3>① El archivo y la contraseña se interceptan por la misma ruta</h3>
+    <p><strong>Problema fundamental:</strong> Si un atacante intercepta el primer correo (ZIP), también puede interceptar el segundo correo (contraseña) porque ambos viajan por los mismos servidores y rutas de red.</p>
+    <ul>
+        <li>El archivo cifrado es inútil sin la contraseña</li>
+        <li>La contraseña en texto plano se envía después</li>
+        <li>Un atacante obtiene ambos → contenidos completamente expuestos</li>
+    </ul>
+
+    <h3>② El cifrado ZIP es débil y puede romperse rápidamente</h3>
+    <p>Windows utiliza por defecto "ZipCrypto", un método de cifrado antiguo y débil que puede ser violado por ataques de fuerza bruta en minutos u horas con computadoras modernas.</p>
+
+    <h3>③ Los gobiernos y grandes empresas han prohibido esta práctica</h3>
+    <p>El gobierno, bancos centrales y grandes corporaciones han declarado que <strong>"el envío de archivos ZIP protegidos con contraseña no es recomendable"</strong> porque:</p>
+    <ul>
+        <li>No protege contra la interceptación de correos</li>
+        <li>Ha sido utilizado para propagar malware</li>
+        <li>El error humano anula todos los beneficios (enviar ambos accidentalmente)</li>
+    </ul>
+
+    <hr style="margin: 40px 0; border: none; height: 2px; background: linear-gradient(to right, transparent, #3498db, transparent);">
+
+    <h2>Criptografía de Clave Pública: La Solución Segura</h2>
+    <p>En lugar de compartir una clave (contraseña) por correo, usamos un <strong>par de claves matemáticamente vinculadas:</strong></p>
+    <ul>
+        <li><strong>Clave Pública:</strong> Se comparte abiertamente (como un candado abierto)</li>
+        <li><strong>Clave Privada:</strong> Se mantiene en secreto (como la llave del candado)</li>
+    </ul>
+
+    <h3>¿Cómo Funciona?</h3>
+    <ol>
+        <li><strong>Generar claves:</strong> El receptor crea un par (pública + privada)</li>
+        <li><strong>Compartir la pública:</strong> El receptor envía su clave pública al remitente</li>
+        <li><strong>Cifrar:</strong> El remitente usa la clave pública para cifrar el archivo</li>
+        <li><strong>Descifrar:</strong> Solo el receptor con la clave privada puede descifrarlo</li>
+    </ol>
+
+    <h3>¿Por Qué es Más Segura?</h3>
+    <table>
+        <thead>
+            <tr>
+                <th>Aspecto</th>
+                <th>ZIP + Contraseña (Inseguro)</th>
+                <th>Clave Pública (Seguro)</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td><strong>Compartir la clave</strong></td>
+                <td>Debe enviarse por correo (riesgo)</td>
+                <td>Clave privada nunca se envía</td>
+            </tr>
+            <tr>
+                <td><strong>Si interceptan</strong></td>
+                <td>Contenidos completamente visibles</td>
+                <td>Sin clave privada = inútil</td>
+            </tr>
+            <tr>
+                <td><strong>Estándar Actual</strong></td>
+                <td>Obsoleto y rechazado</td>
+                <td>Usado en HTTPS, S/MIME, etc.</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <hr style="margin: 40px 0; border: none; height: 2px; background: linear-gradient(to right, transparent, #3498db, transparent);">
+
+    <h2>Sobre esta Herramienta</h2>
+    <p>Esta herramienta implementa <strong>cifrado de clave pública en el navegador</strong> usando Web Crypto API (estándar moderno de JavaScript).</p>
+
+    <div class="note">
+        <p><strong>Características de Seguridad:</strong></p>
+        <ul style="margin-left: 20px;">
+            <li>✓ Clave privada nunca se envía</li>
+            <li>✓ Cifrado AES-256-GCM (fuerte moderno)</li>
+            <li>✓ Sin servidores — todo en el navegador</li>
+            <li>✓ Archivos de cualquier tamaño soportados</li>
+        </ul>
+    </div>
+
+    <div class="warning">
+        <p><strong>Nota:</strong> Esta es una herramienta educativa y simplificada. Para aplicaciones críticas, consulte herramientas profesionales o las políticas de su organización.</p>
+    </div>
+
+</div>
+</body>
+</html>

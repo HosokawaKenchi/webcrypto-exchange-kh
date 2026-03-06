@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sichere Verschlüsselung von E-Mail-Anhängen — WebCrypto Exchange KH</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            line-height: 1.8; color: #333;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            min-height: 100vh; padding: 20px;
+        }
+        .container { max-width: 900px; margin: 0 auto; background: white; border-radius: 10px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.1); padding: 40px; }
+        h1 { color: #2c3e50; font-size: 2.2em; margin-bottom: 30px;
+            border-bottom: 3px solid #3498db; padding-bottom: 20px; }
+        h2 { color: #34495e; font-size: 1.8em; margin-top: 40px; margin-bottom: 20px;
+            padding-left: 15px; border-left: 4px solid #e74c3c; }
+        h3 { color: #34495e; font-size: 1.4em; margin-top: 25px; margin-bottom: 15px; }
+        h4 { color: #34495e; font-size: 1.2em; margin-top: 20px; margin-bottom: 10px; }
+        p { margin-bottom: 15px; text-align: justify; }
+        strong { color: #e74c3c; font-weight: bold; }
+        ul, ol { margin-left: 30px; margin-bottom: 20px; }
+        li { margin-bottom: 10px; }
+        a { color: #3498db; text-decoration: none; border-bottom: 1px dotted #3498db; }
+        a:hover { color: #2980b9; border-bottom: 1px solid #2980b9; }
+        blockquote { border-left: 4px solid #95a5a6; margin-left: 20px; padding: 15px;
+            margin-bottom: 20px; background: #ecf0f1; border-radius: 5px; font-style: italic; }
+        table { width: 100%; border-collapse: collapse; margin: 20px 0;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+        th, td { border: 1px solid #bdc3c7; padding: 12px; text-align: left; }
+        th { background-color: #3498db; color: white; font-weight: bold; }
+        tr:nth-child(even) { background-color: #ecf0f1; }
+        hr { border: none; height: 2px;
+            background: linear-gradient(to right, transparent, #3498db, transparent);
+            margin: 40px 0; }
+        .intro { background: #e8f4f8; padding: 20px; border-radius: 8px;
+            margin-bottom: 30px; border-left: 4px solid #3498db; }
+        .warning { background: #fff3cd; padding: 20px; border-radius: 8px;
+            margin: 20px 0; border-left: 4px solid #ffc107; }
+        .note { background: #d4edda; padding: 20px; border-radius: 8px;
+            margin: 20px 0; border-left: 4px solid #28a745; }
+        code { background: #f4f4f4; padding: 2px 6px; border-radius: 3px;
+            font-family: 'Courier New', monospace; color: #e74c3c; }
+        @media (max-width: 768px) {
+            .container { padding: 20px; }
+            h1 { font-size: 1.8em; } h2 { font-size: 1.5em; }
+            table { font-size: 0.9em; } th, td { padding: 8px; }
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h1>Sichere Verschlüsselung von E-Mail-Anhängen</h1>
+
+    <div class="intro">
+        <p>Das Versenden einer passwortgeschützten ZIP-Datei und anschließend das Senden des Passworts in einer separaten E-Mail ist eine in Japan als <strong>"PPAP"</strong> bekannte Methode (Password-protected ZIP → Password sent → Ango-ka / Encryption → Protocol).</p>
+        <p>Heute haben viele Regierungsbehörden und Unternehmen <strong>PPAP abgeschafft</strong>, da sie erkannt haben, dass es praktisch keinen Sicherheitsvorteil bietet und das Risiko tatsächlich erhöht.</p>
+    </div>
+
+    <h2>Warum "Passwort-ZIP + Plaintext-Passwort" gefährlich ist</h2>
+    <p style="margin-top:-10px;font-size:0.95em;color:#7f8c8d;">(Der Grund, warum Universitäten und öffentliche Behörden da abkommen)</p>
+
+    <figure style="text-align:center;margin:30px 0;padding:20px;background:#f9f9f9;border-radius:8px;">
+        <svg viewBox="0 0 600 200" style="max-width:100%;height:auto;">
+            <text x="150" y="25" font-size="16" font-weight="bold" text-anchor="middle" fill="#e74c3c">❌ PPAP (Gefährlich)</text>
+            <circle cx="50" cy="100" r="25" fill="#3498db"/>
+            <text x="50" y="105" font-size="12" text-anchor="middle" fill="white">Absender</text>
+            <circle cx="250" cy="100" r="25" fill="#2ecc71"/>
+            <text x="250" y="105" font-size="12" text-anchor="middle" fill="white">Empfänger</text>
+            <path d="M 75 80 L 225 80" stroke="#e74c3c" stroke-width="3" fill="none" marker-end="url(#aR)"/>
+            <text x="150" y="77" font-size="11" text-anchor="middle" fill="#c0392b">🔓 ZIP-Datei</text>
+            <text x="150" y="90" font-size="10" text-anchor="middle" fill="#c0392b">abgefangen</text>
+            <path d="M 75 120 L 225 120" stroke="#e74c3c" stroke-width="3" fill="none" marker-end="url(#aR)"/>
+            <text x="150" y="117" font-size="11" text-anchor="middle" fill="#c0392b">🔑 Passwort</text>
+            <text x="150" y="130" font-size="10" text-anchor="middle" fill="#c0392b">gleicher Weg — auch abgefangen</text>
+            <text x="150" y="165" font-size="11" text-anchor="middle" fill="#e74c3c">⚠️ Angreifer bekommt beides — Inhalt vollständig offengelegt!</text>
+
+            <text x="450" y="25" font-size="16" font-weight="bold" text-anchor="middle" fill="#27ae60">✓ Öffentlicher Schlüssel (Sicher)</text>
+            <circle cx="350" cy="100" r="25" fill="#3498db"/>
+            <text x="350" y="105" font-size="12" text-anchor="middle" fill="white">Absender</text>
+            <circle cx="550" cy="100" r="25" fill="#2ecc71"/>
+            <text x="550" y="105" font-size="12" text-anchor="middle" fill="white">Empfänger</text>
+            <path d="M 390 85 L 525 85" stroke="#27ae60" stroke-width="2" stroke-dasharray="5,5" fill="none" marker-start="url(#aG)"/>
+            <text x="450" y="82" font-size="9" text-anchor="middle" fill="#27ae60">🔓 Öffentlicher Schlüssel (sicher zu teilen)</text>
+            <path d="M 375 115 L 525 115" stroke="#f39c12" stroke-width="3" fill="none" marker-end="url(#aO)"/>
+            <text x="450" y="112" font-size="11" text-anchor="middle" fill="#d68910">🔐 Verschlüsselte Datei</text>
+            <text x="450" y="125" font-size="10" text-anchor="middle" fill="#d68910">ohne privaten Schlüssel unleserlich</text>
+            <text x="450" y="165" font-size="11" text-anchor="middle" fill="#27ae60">✓ Privater Schlüssel verlässt den Empfänger nie</text>
+            <defs>
+                <marker id="aR" markerWidth="10" markerHeight="10" refX="10" refY="3" orient="auto" markerUnits="strokeWidth"><path d="M1,0 L1,6 L10,3 z" fill="#e74c3c"/></marker>
+                <marker id="aG" markerWidth="10" markerHeight="10" refX="10" refY="3" orient="auto" markerUnits="strokeWidth"><path d="M9,0 L9,6 L0,3 z" fill="#27ae60"/></marker>
+                <marker id="aO" markerWidth="10" markerHeight="10" refX="10" refY="3" orient="auto" markerUnits="strokeWidth"><path d="M1,0 L1,6 L10,3 z" fill="#f39c12"/></marker>
+            </defs>
+        </svg>
+        <figcaption style="font-size:0.9em;color:#7f8c8d;margin-top:15px;">Abbildung 1: PPAP vs. Public-Key-Verschlüsselung</figcaption>
+    </figure>
+
+    <h3>① Datei und Passwort reisen beide über denselben Weg — beide können abgefangen werden</h3>
+    <p>Das Kernproblem ist einfach: <strong>Der Dieb beobachtet dieselbe Straße zweimal.</strong></p>
+    <ul>
+        <li><strong>E-Mail 1 (Datei):</strong> Möglicherweise von einem Angreifer abgefangen.</li>
+        <li><strong>E-Mail 2 (Passwort):</strong> Wird über exakt dasselbe Netzwerk und dieselben Server gesendet — gleich anfällig.</li>
+    </ul>
+    <p>Es ist wie das Verschließen der Haustür (E-Mail 1) und dann das Verlegen des Schlüssels unter der Matte direkt vor der Tür (E-Mail 2), während der Dieb von hinten zuschaut. Japans <strong>IPA (Information-technology Promotion Agency)</strong> warnt ausdrücklich, dass das Senden beider über denselben Kanal keinen bedeutungsvollen Schutz bietet.</p>
+
+    <div class="warning">
+        <p><strong>Warnung der Behörden:</strong> "Das Senden beider über dieselbe Route bietet keinen Abhörschutz."</p>
+        <p>Wenn ein Angreifer Ihre E-Mail abhören kann, <strong>werden sowohl die verschlüsselte Datei als auch das Passwort gleichzeitig gestohlen — und die Entschlüsselung ist trivial.</strong></p>
+        <p style="font-size:0.9em;margin-top:10px;">Referenzen: <a href="https://business.ntt-west.co.jp/bizclip/articles/bcl00163-057.html" target="_blank">NTT West</a>, <a href="https://www.ntt.com/bizon/ppap-caution.html" target="_blank">NTT</a></p>
+    </div>
+
+    <h3>② ZIPs Verschlüsselung ist schwach — kurze Passwörter werden in Minuten geknackt</h3>
+    <p>Die meisten Windows-Umgebungen verwenden <strong>ZipCrypto</strong>, einen Legacy-Algorithmus, der allgemein als beschädigt gilt. Brute-Force-Angriffe können <strong>kurze Passwörter in Minuten bis Tagen knacken</strong>. Dies ist unzureichend für Forschungsdaten oder personenbezogene Informationen.</p>
+
+    <h3>③ "Passwort separat senden" scheitert genau im falschen Moment</h3>
+    <p>Die ursprüngliche Begründung war: "Selbst wenn Sie die Datei an die falsche Person senden, können sie sie ohne das Passwort nicht öffnen." In der Praxis:</p>
+    <ul>
+        <li>Benutzer senden oft <strong>die Passwort-E-Mail unmittelbar danach</strong> an denselben falschen Empfänger.</li>
+        <li>Beide E-Mails teilen das gleiche Irrtum-Risiko — <strong>der Fehler ist korreliert</strong>.</li>
+    </ul>
+    <p>Einfach ausgedrückt: <strong>"Sie senden Schloss und Schlüssel an die falsche Person, ohne es zu bemerken."</strong></p>
+
+    <h3>④ Regierungen, Finanzregulierer und Großunternehmen haben PPAP explizit verboten</h3>
+    <p>Japans Kabinett, Digitalagentur und Finanzdienstleistungsbehörde haben alle erklärt, dass <strong>das Versenden von passwortgeschützten ZIPs per E-Mail nicht empfohlen wird</strong> und haben Ministerien und Unternehmen aufgefordert, diese Praxis einzustellen.</p>
+    <blockquote>
+        "Der Versand von passwortgeschützten Dateianhängen sollte grundsätzlich nicht erfolgen."
+        <br><small>— Japanische Finanzdienstleistungsbehörde (2025)</small>
+    </blockquote>
+
+    <hr>
+
+    <h2>Zusammenfassung: Warum es gefährlich ist (einfache Sprache)</h2>
+    <ol>
+        <li><strong>Die Datei und ihr Passwort reisen denselben Weg — beide können abgefangen werden.</strong></li>
+        <li><strong>Antivirus-Tools können nicht in verschlüsselte ZIPs scannen — Angreifer nutzen dies, um Malware zu verbreiten.</strong></li>
+        <li><strong>Falsch gesendete Dateien werden mit ihren Schlüsseln gesendet, daher verhindert "Passwort später senden" die Offenlegung nicht.</strong></li>
+    </ol>
+
+    <h2>Empfohlene Alternativen</h2>
+    <ul>
+        <li><strong>Cloud-Speicher</strong> (Box / OneDrive / Google Drive) <strong>mit Freigabelinks</strong></li>
+        <li><strong>Verschlüsselte E-Mail</strong> (S/MIME / PGP)</li>
+        <li><strong>Dedizierte sichere Dateiübertragungsdienste</strong></li>
+        <li><strong>Public-Key-Dateiverschlüsselung</strong> (dieses Tool)</li>
+    </ul>
+
+    <hr>
+
+    <h2>Wie Public-Key-Kryptographie funktioniert</h2>
+    <p>Das grundlegende Problem von PPAP war, dass Sie den Schlüssel (Passwort) an die andere Partei senden mussten. Public-Key-Kryptographie löst dies an der Wurzel.</p>
+
+    <h3>1. Das Vorhängeschloss Analogie</h3>
+    <p>Public-Key-Kryptographie verwendet ein Schlüsselpaar: einen <strong>öffentlichen Schlüssel</strong> und einen <strong>privaten Schlüssel</strong>.</p>
+
+    <figure style="text-align:center;margin:30px 0;padding:20px;background:#f9f9f9;border-radius:8px;">
+        <svg viewBox="0 0 800 250" style="max-width:100%;height:auto;">
+            <text x="100" y="30" font-size="14" font-weight="bold" fill="#2c3e50">Schritt 1. Schlüssel erstellen (Empfänger)</text>
+            <circle cx="100" cy="80" r="30" fill="#2ecc71"/>
+            <text x="100" y="85" font-size="12" text-anchor="middle" fill="white">Empfänger</text>
+            <path d="M 130 70 L 180 70" stroke="#2c3e50" stroke-width="2" fill="none" marker-end="url(#aD2)"/>
+            <rect x="180" y="55" width="60" height="30" rx="5" fill="#f39c12" stroke="#d68910" stroke-width="2"/>
+            <text x="210" y="75" font-size="11" text-anchor="middle" fill="white">🔓 Öffentlich</text>
+            <path d="M 130 90 L 180 90" stroke="#2c3e50" stroke-width="2" fill="none" marker-end="url(#aD2)"/>
+            <rect x="180" y="75" width="60" height="30" rx="5" fill="#e74c3c" stroke="#c0392b" stroke-width="2"/>
+            <text x="210" y="95" font-size="11" text-anchor="middle" fill="white">🔑 Privat</text>
+
+            <text x="100" y="150" font-size="14" font-weight="bold" fill="#2c3e50">Schritt 2. Vorhängeschloss teilen</text>
+            <circle cx="100" cy="200" r="30" fill="#2ecc71"/>
+            <text x="100" y="205" font-size="12" text-anchor="middle" fill="white">Empfänger</text>
+            <path d="M 130 200 L 220 200" stroke="#f39c12" stroke-width="3" fill="none" marker-end="url(#aO2)"/>
+            <rect x="225" y="185" width="60" height="30" rx="5" fill="#f39c12" stroke="#d68910" stroke-width="2"/>
+            <text x="255" y="205" font-size="11" text-anchor="middle" fill="white">🔓 Öffentlich</text>
+            <text x="360" y="205" font-size="10" fill="#7f8c8d">→ an Absender senden</text>
+
+            <text x="550" y="30" font-size="14" font-weight="bold" fill="#2c3e50">Schritt 3. Sperren (Absender)</text>
+            <circle cx="550" cy="80" r="30" fill="#3498db"/>
+            <text x="550" y="85" font-size="12" text-anchor="middle" fill="white">Absender</text>
+            <rect x="625" y="60" width="30" height="30" rx="3" fill="#95a5a6" stroke="#7f8c8d" stroke-width="2"/>
+            <text x="640" y="80" font-size="14" text-anchor="middle" fill="white">📄</text>
+            <text x="640" y="100" font-size="9" text-anchor="middle" fill="#2c3e50">Datei</text>
+            <path d="M 590 85 L 625 85" stroke="#2c3e50" stroke-width="2" fill="none" marker-end="url(#aD2)"/>
+            <rect x="680" y="60" width="40" height="40" rx="3" fill="#f39c12" stroke="#d68910" stroke-width="2"/>
+            <text x="700" y="92" font-size="20" text-anchor="middle" fill="white">🔐</text>
+
+            <text x="550" y="150" font-size="14" font-weight="bold" fill="#2c3e50">Schritt 4. Mit privatem Schlüssel entsperren (Empfänger)</text>
+            <circle cx="550" cy="200" r="30" fill="#2ecc71"/>
+            <text x="550" y="205" font-size="12" text-anchor="middle" fill="white">Empfänger</text>
+            <rect x="625" y="180" width="40" height="40" rx="3" fill="#f39c12" stroke="#d68910" stroke-width="2"/>
+            <text x="645" y="212" font-size="20" text-anchor="middle" fill="white">🔐</text>
+            <path d="M 590 200 L 625 200" stroke="#2c3e50" stroke-width="2" fill="none" marker-end="url(#aD2)"/>
+            <rect x="680" y="180" width="30" height="30" rx="3" fill="#95a5a6" stroke="#7f8c8d" stroke-width="2"/>
+            <text x="695" y="200" font-size="14" text-anchor="middle" fill="white">📄</text>
+            <text x="695" y="220" font-size="9" text-anchor="middle" fill="#2c3e50">Geöffnet</text>
+            <defs>
+                <marker id="aD2" markerWidth="10" markerHeight="10" refX="10" refY="3" orient="auto" markerUnits="strokeWidth"><path d="M0,0 L0,6 L9,3 z" fill="#2c3e50"/></marker>
+                <marker id="aO2" markerWidth="10" markerHeight="10" refX="10" refY="3" orient="auto" markerUnits="strokeWidth"><path d="M0,0 L0,6 L9,3 z" fill="#f39c12"/></marker>
+            </defs>
+        </svg>
+        <figcaption style="font-size:0.9em;color:#7f8c8d;margin-top:15px;">Abbildung 2: Public-Key-Kryptographie Schritt für Schritt</figcaption>
+    </figure>
+
+    <ol>
+        <li><strong>Schlüssel erstellen (Empfänger):</strong> Der Empfänger generiert ein "offenes Vorhängeschloss" (öffentlicher Schlüssel) und einen eindeutigen physischen Schlüssel (privater Schlüssel).</li>
+        <li><strong>Vorhängeschloss teilen:</strong> Der Empfänger gibt das offene Vorhängeschloss an jeden, der eine Datei senden möchte. Ein gestohlenes Vorhängeschloss ist ohne den Schlüssel nutzlos.</li>
+        <li><strong>Sperren und senden (Absender):</strong> Der Absender klickt das Vorhängeschloss auf der Datei zu. Nach dem Sperren kann nicht einmal der Absender es öffnen.</li>
+        <li><strong>Mit privatem Schlüssel entsperren (Empfänger):</strong> Der Empfänger verwendet seinen geheim gehaltenen privaten Schlüssel, um die Datei freizuschalten.</li>
+    </ol>
+
+    <h3>2. Warum es viel sicherer ist als PPAP</h3>
+    <p>Der entscheidende Unterschied: <strong>Der Entschlüsselungsschlüssel (privater Schlüssel) reist nie über ein Netzwerk.</strong></p>
+
+    <h4>Kein Risiko, dass der Schlüssel gestohlen wird</h4>
+    <p>Bei PPAP wird das Passwort (gemeinsamer Schlüssel) per E-Mail gesendet — dieser eine Abfangpunkt ist fatal. Bei der Public-Key-Kryptographie reist nur das "offene Vorhängeschloss" (öffentlicher Schlüssel) über das Netzwerk. Ein gestohlenes Vorhängeschloss ist völlig nutzlos zum Öffnen des gesperrten Inhalts.</p>
+
+    <h4>Mathematische Einwegfunktion</h4>
+    <p>Public-Key-Kryptographie basiert auf einer mathematischen <strong>Falltürfunktion</strong> — einfach in eine Richtung, rechnerisch unmöglich in die andere. Zum Beispiel ist das Multiplizieren zweier sehr großer Primzahlen augenblicklich, aber das Faktorisieren des Produkts (nur das Ergebnis gegeben) würde Supercomputer Jahre dauern.</p>
+
+    <h3>3. Reale Anwendungen</h3>
+    <ul>
+        <li><strong>HTTPS (Webbrowsing):</strong> Das Schlosssymbol in Ihrem Browser verwendet diesen Mechanismus zum Schutz von Daten.</li>
+        <li><strong>S/MIME (E-Mail-Verschlüsselung):</strong> Von Universitäten und Regierungsbehörden verwendet, um Identitätswechsel zu verhindern und E-Mail-Inhalte zu schützen.</li>
+        <li><strong>Digitale Signaturen:</strong> Der private Schlüssel signiert Daten; der öffentliche Schlüssel verifiziert sie — Authentizität ohne Offenlegung des Geheimnisses der Unterzeichner wird nachgewiesen.</li>
+    </ul>
+
+    <h3>Vergleichszusammenfassung</h3>
+    <table>
+        <thead><tr><th>Merkmal</th><th>PPAP (gemeinsamer Schlüssel)</th><th>Public-Key-Verschlüsselung</th></tr></thead>
+        <tbody>
+            <tr><td><strong>Schlüsselübertragung</strong></td><td>Über Netzwerk gesendet (gefährlich)</td><td>Privater Schlüssel verlässt Empfänger nie (sicher)</td></tr>
+            <tr><td><strong>Schlüssel gestohlen?</strong></td><td>Inhalte vollständig offengelegt</td><td>Öffentlicher Schlüsseldiebstahl → immer noch unleserlich</td></tr>
+            <tr><td><strong>Anwendungsfall</strong></td><td>Veraltete Konvention</td><td>Moderner Standard (Web, E-Mail, VPN…)</td></tr>
+        </tbody>
+    </table>
+
+    <hr>
+
+    <h2>Über dieses Tool (WebCrypto Exchange KH)</h2>
+    <p>Dieses Tool implementiert die Public-Key-Dateiverschlüsselung vollständig im Browser.</p>
+
+    <h3>Technische Hinweise</h3>
+    <div class="note">
+        <p><strong>Web Crypto API:</strong> Das Tool verwendet <code>window.crypto.subtle</code> — eine Standard-Browser-API für Schlüsselgenerierung, Verschlüsselung und Entschlüsselung.</p>
+    </div>
+    <div class="note">
+        <p><strong>Lokale Dateiverarbeitung:</strong> Dateien werden mit der <code>Blob</code> / <code>File</code> API des Browsers gelesen und geschrieben. Dateiinhalte werden niemals an einen externen Server gesendet (es sei denn, Sie tun es selbst).</p>
+    </div>
+    <div class="note">
+        <p><strong>Statisches Hosting (GitHub Pages):</strong> Da GitHub Pages ein statischer Host ohne serverseitige Verarbeitung ist, kann die App technisch unmöglich Dateien oder Schlüssel auf einen Server hochladen.</p>
+    </div>
+
+    <h3>Hybrid-Verschlüsselung</h3>
+    <p>Das Tool verwendet <strong>Hybrid-Verschlüsselung</strong>:</p>
+
+    <figure style="text-align:center;margin:30px 0;padding:20px;background:#f9f9f9;border-radius:8px;">
+        <svg viewBox="0 0 900 200" style="max-width:100%;height:auto;">
+            <rect x="20" y="60" width="50" height="50" rx="5" fill="#95a5a6" stroke="#7f8c8d" stroke-width="2"/>
+            <text x="45" y="92" font-size="24" text-anchor="middle" fill="white">📄</text>
+            <text x="45" y="120" font-size="10" text-anchor="middle" fill="#2c3e50">Datei</text>
+            <path d="M 70 85 L 110 85" stroke="#3498db" stroke-width="2" fill="none" marker-end="url(#aBl3)"/>
+            <rect x="110" y="60" width="80" height="50" rx="5" fill="#3498db" stroke="#2980b9" stroke-width="2"/>
+            <text x="150" y="80" font-size="11" font-weight="bold" text-anchor="middle" fill="white">AES-256</text>
+            <text x="150" y="95" font-size="11" font-weight="bold" text-anchor="middle" fill="white">GCM Verschl.</text>
+            <path d="M 190 85 L 230 85" stroke="#3498db" stroke-width="2" fill="none" marker-end="url(#aBl3)"/>
+            <rect x="230" y="60" width="80" height="50" rx="5" fill="#f39c12" stroke="#d68910" stroke-width="2"/>
+            <text x="270" y="80" font-size="14" text-anchor="middle" fill="white">🔐</text>
+            <text x="270" y="100" font-size="10" text-anchor="middle" fill="white">Verschl.</text>
+            <text x="270" y="120" font-size="10" text-anchor="middle" fill="#2c3e50">Dateidaten</text>
+            <circle cx="50" cy="150" r="25" fill="#ecf0f1" stroke="#bdc3c7" stroke-width="2"/>
+            <text x="50" y="148" font-size="9" text-anchor="middle" fill="#2c3e50">AES Schlüssel</text>
+            <text x="50" y="160" font-size="9" text-anchor="middle" fill="#2c3e50">generiert</text>
+            <path d="M 75 150 L 115 150" stroke="#2c3e50" stroke-width="2" fill="none" marker-end="url(#aD3)"/>
+            <rect x="115" y="125" width="80" height="50" rx="5" fill="#e74c3c" stroke="#c0392b" stroke-width="2"/>
+            <text x="155" y="145" font-size="11" font-weight="bold" text-anchor="middle" fill="white">RSA-OAEP</text>
+            <text x="155" y="160" font-size="11" font-weight="bold" text-anchor="middle" fill="white">Schlüsselv.</text>
+            <path d="M 195 150 L 235 150" stroke="#e74c3c" stroke-width="2" fill="none" marker-end="url(#aRd3)"/>
+            <rect x="235" y="125" width="80" height="50" rx="5" fill="#c0392b" stroke="#922b21" stroke-width="2"/>
+            <text x="275" y="145" font-size="11" text-anchor="middle" fill="white">Verschl.</text>
+            <text x="275" y="160" font-size="11" text-anchor="middle" fill="white">AES Schlüssel</text>
+            <text x="380" y="110" font-size="12" font-weight="bold" fill="#2c3e50">Enthält:</text>
+            <rect x="360" y="120" width="110" height="60" rx="5" fill="#f0f0f0" stroke="#95a5a6" stroke-width="2" stroke-dasharray="5,5"/>
+            <text x="415" y="135" font-size="10" text-anchor="middle" fill="#2c3e50">📦 .encrypted Datei</text>
+            <text x="415" y="150" font-size="9" text-anchor="middle" fill="#7f8c8d">• Verschlüsselte Dateidaten</text>
+            <text x="415" y="163" font-size="9" text-anchor="middle" fill="#7f8c8d">• Verschlüsselter AES Schlüssel</text>
+            <text x="415" y="176" font-size="9" text-anchor="middle" fill="#7f8c8d">• IV (Initialisierungsvektor)</text>
+            <text x="600" y="40" font-size="12" font-weight="bold" fill="#27ae60">✓ Hybrid-Verschl. Vorteile:</text>
+            <text x="600" y="60" font-size="10" fill="#2c3e50">✓ AES-256 verschl. Dateien</text>
+            <text x="600" y="75" font-size="10" fill="#2c3e50">  beliebiger Größe mit Hochgeschwindigkeit</text>
+            <text x="600" y="95" font-size="10" fill="#2c3e50">✓ RSA-OAEP schützt AES Schlüssel</text>
+            <text x="600" y="110" font-size="10" fill="#2c3e50">  nur privater Schlüsselhalter</text>
+            <text x="600" y="125" font-size="10" fill="#2c3e50">  kann entschlüsseln</text>
+            <text x="600" y="150" font-size="10" fill="#27ae60">= Sicherheit + Effizienz kombiniert</text>
+            <defs>
+                <marker id="aBl3" markerWidth="10" markerHeight="10" refX="10" refY="3" orient="auto" markerUnits="strokeWidth"><path d="M0,0 L0,6 L9,3 z" fill="#3498db"/></marker>
+                <marker id="aRd3" markerWidth="10" markerHeight="10" refX="10" refY="3" orient="auto" markerUnits="strokeWidth"><path d="M0,0 L0,6 L9,3 z" fill="#e74c3c"/></marker>
+                <marker id="aD3" markerWidth="10" markerHeight="10" refX="10" refY="3" orient="auto" markerUnits="strokeWidth"><path d="M0,0 L0,6 L9,3 z" fill="#2c3e50"/></marker>
+            </defs>
+        </svg>
+        <figcaption style="font-size:0.9em;color:#7f8c8d;margin-top:15px;">Abbildung 3: Hybrid-Verschlüsselungsfluss</figcaption>
+    </figure>
+
+    <ol>
+        <li><strong>AES-256-GCM-Verschlüsselung:</strong> Ein zufällig generierter AES-Schlüssel verschlüsselt die Datei mit hoher Geschwindigkeit und unterstützt Dateien beliebiger Größe.</li>
+        <li><strong>RSA-OAEP-Schlüsselverschlüsselung:</strong> Der AES-Schlüssel wird dann mit dem öffentlichen Schlüssel des Empfängers verschlüsselt, sodass nur der Inhaber des privaten Schlüssels ihn wiederherstellen kann.</li>
+    </ol>
+    <p>Dies macht es möglich, <strong>Dateien beliebiger Größe sicher zu verschlüsseln</strong> — Bilder, Videos, Archive und mehr.</p>
+
+    <h2>Haftungsausschluss</h2>
+    <div class="warning">
+        <p>Diese App ist ein leichtgewichtiges Tool und entspricht nicht der Robustheit von kommerziell oder organisatorisch verwalteten kryptographischen Lösungen.</p>
+        <p>Das heißt, es bietet <strong>eine messbare Sicherheitsverbesserung gegenüber PPAP</strong> (passwortgeschützte ZIP + Plaintext-Passwort-E-Mail). Wenn PPAP die Alternative ist, ist dieses Tool die bessere Wahl.</p>
+        <p>Für Umgebungen, in denen Nachverfolgbarkeit oder formale Sicherheitsgarantien erforderlich sind, verwenden Sie bitte eine professionell verwaltete Lösung, die der Politik Ihrer Organisation entspricht.</p>
+    </div>
+</div>
+</body>
+</html>

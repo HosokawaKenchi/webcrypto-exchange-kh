@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chiffrement Sécurisé des Pièces Jointes Par Courrier — WebCrypto Exchange KH</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            line-height: 1.8; color: #333;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            min-height: 100vh; padding: 20px;
+        }
+        .container { max-width: 900px; margin: 0 auto; background: white; border-radius: 10px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.1); padding: 40px; }
+        h1 { color: #2c3e50; font-size: 2.2em; margin-bottom: 30px;
+            border-bottom: 3px solid #3498db; padding-bottom: 20px; }
+        h2 { color: #34495e; font-size: 1.8em; margin-top: 40px; margin-bottom: 20px;
+            padding-left: 15px; border-left: 4px solid #e74c3c; }
+        h3 { color: #34495e; font-size: 1.4em; margin-top: 25px; margin-bottom: 15px; }
+        p { margin-bottom: 15px; text-align: justify; }
+        strong { color: #e74c3c; font-weight: bold; }
+        ul, ol { margin-left: 30px; margin-bottom: 20px; }
+        li { margin-bottom: 10px; }
+        a { color: #3498db; text-decoration: none; border-bottom: 1px dotted #3498db; }
+        a:hover { color: #2980b9; border-bottom: 1px solid #2980b9; }
+        .intro { background: #e8f4f8; padding: 20px; border-radius: 8px;
+            margin-bottom: 30px; border-left: 4px solid #3498db; }
+        .warning { background: #fff3cd; padding: 20px; border-radius: 8px;
+            margin: 20px 0; border-left: 4px solid #ffc107; }
+        .note { background: #d4edda; padding: 20px; border-radius: 8px;
+            margin: 20px 0; border-left: 4px solid #28a745; }
+        table { width: 100%; border-collapse: collapse; margin: 20px 0; }
+        th, td { border: 1px solid #bdc3c7; padding: 12px; text-align: left; }
+        th { background-color: #3498db; color: white; font-weight: bold; }
+        code { background: #f4f4f4; padding: 2px 6px; border-radius: 3px;
+            font-family: 'Courier New', monospace; color: #e74c3c; }
+        @media (max-width: 768px) {
+            .container { padding: 20px; }
+            h1 { font-size: 1.8em; } h2 { font-size: 1.5em; }
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h1>Chiffrement Sécurisé des Pièces Jointes par Courrier</h1>
+
+    <div class="intro">
+        <p>Envoyer un fichier ZIP protégé par mot de passe, puis envoyer le mot de passe dans un courrier séparé est une pratique que <strong>de nombreuses agences gouvernementales et entreprises ont abandonnée</strong>, reconnaissant qu'elle ne fournit pratiquement aucun bénéfice de sécurité et augmente même les risques.</p>
+    </div>
+
+    <h2>Pourquoi ZIP + Mot de Passe en Texte Clair est Dangereux?</h2>
+
+    <h3>① Le fichier et le mot de passe sont interceptés par la même route</h3>
+    <p><strong>Problème fondamental :</strong> Si un attaquant intercepte le premier courriel (ZIP), il peut également intercepter le deuxième courriel (mot de passe) car les deux transite par les mêmes serveurs et routes réseau.</p>
+    <ul>
+        <li>Le fichier chiffré est inutile sans le mot de passe</li>
+        <li>Le mot de passe en texte clair est envoyé après</li>
+        <li>Un attaquant obtient les deux → contenu complètement exposé</li>
+    </ul>
+
+    <h3>② Le chiffrement ZIP est faible et peut être cassé rapidement</h3>
+    <p>Windows utilise par défaut "ZipCrypto", une ancienne méthode de chiffrement faible qui peut être violée par des attaques par force brute en quelques minutes ou heures avec des ordinateurs modernes.</p>
+
+    <h3>③ Les gouvernements et les grandes entreprises ont interdit cette pratique</h3>
+    <p>Le gouvernement, les banques centrales et les grandes sociétés ont déclaré que <strong>"l'envoi de fichiers ZIP protégés par mot de passe n'est pas recommandé"</strong> parce que :</p>
+    <ul>
+        <li>Cela ne protège pas contre l'interception du courrier</li>
+        <li>Cela a été utilisé pour propager des logiciels malveillants</li>
+        <li>L'erreur humaine annule tous les avantages (envoyer les deux accidentellement)</li>
+    </ul>
+
+    <hr style="margin: 40px 0; border: none; height: 2px; background: linear-gradient(to right, transparent, #3498db, transparent);">
+
+    <h2>Cryptographie à Clé Publique : La Solution Sécurisée</h2>
+    <p>Au lieu de partager une clé (mot de passe) par courrier, nous utilisons une <strong>paire de clés mathématiquement liées :</strong></p>
+    <ul>
+        <li><strong>Clé Publique :</strong> Partagée ouvertement (comme un cadenas ouvert)</li>
+        <li><strong>Clé Privée :</strong> Gardée secrète (comme la clé du cadenas)</li>
+    </ul>
+
+    <h3>Comment Cela Fonctionne?</h3>
+    <ol>
+        <li><strong>Générer des clés :</strong> Le destinataire crée une paire (publique + privée)</li>
+        <li><strong>Partager la publique :</strong> Le destinataire envoie sa clé publique à l'expéditeur</li>
+        <li><strong>Chiffrer :</strong> L'expéditeur utilise la clé publique pour chiffrer le fichier</li>
+        <li><strong>Déchiffrer :</strong> Seul le destinataire ayant la clé privée peut le déchiffrer</li>
+    </ol>
+
+    <h3>Pourquoi c'est Plus Sûr?</h3>
+    <table>
+        <thead>
+            <tr>
+                <th>Aspect</th>
+                <th>ZIP + Mot de Passe (Insécurisé)</th>
+                <th>Clé Publique (Sécurisé)</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td><strong>Partager la clé</strong></td>
+                <td>Doit être envoyée par courrier (risque)</td>
+                <td>Clé privée n'est jamais envoyée</td>
+            </tr>
+            <tr>
+                <td><strong>Si intercepté</strong></td>
+                <td>Contenu complètement visible</td>
+                <td>Sans clé privée = inutile</td>
+            </tr>
+            <tr>
+                <td><strong>Norme Actuelle</strong></td>
+                <td>Obsolète et rejetée</td>
+                <td>Utilisée dans HTTPS, S/MIME, etc.</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <hr style="margin: 40px 0; border: none; height: 2px; background: linear-gradient(to right, transparent, #3498db, transparent);">
+
+    <h2>À Propos de Cet Outil</h2>
+    <p>Cet outil implémente le <strong>chiffrement à clé publique dans le navigateur</strong> en utilisant l'API Web Crypto (norme JavaScript moderne).</p>
+
+    <div class="note">
+        <p><strong>Caractéristiques de Sécurité :</strong></p>
+        <ul style="margin-left: 20px;">
+            <li>✓ La clé privée n'est jamais envoyée</li>
+            <li>✓ Chiffrement AES-256-GCM (fort et moderne)</li>
+            <li>✓ Pas de serveurs — tout dans le navigateur</li>
+            <li>✓ Fichiers de toute taille pris en charge</li>
+        </ul>
+    </div>
+
+    <div class="warning">
+        <p><strong>Remarque :</strong> Ce est un outil éducatif simplifié. Pour les applications critiques, consultez les outils professionnels ou les politiques de votre organisation.</p>
+    </div>
+
+</div>
+</body>
+</html>

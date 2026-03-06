@@ -50,12 +50,12 @@ async function generateKeyPair() {
         publicKey = keyPair.publicKey;
         privateKey = keyPair.privateKey;
 
-        showStatus('keyStatus', 'success', 'キーペアを生成しました！');
+        showStatus('keyStatus', 'success', I18N.t('status.keyGenerated'));
         document.getElementById('downloadKeysContainer').style.display = 'block';
         document.getElementById('generateKeysBtn').disabled = true;
 
     } catch (error) {
-        showStatus('keyStatus', 'error', `エラー: ${error.message}`);
+        showStatus('keyStatus', 'error', I18N.t('error.generic', error.message));
     }
 }
 
@@ -64,9 +64,14 @@ async function downloadPublicKey() {
     try {
         const exported = await window.crypto.subtle.exportKey('spki', publicKey);
         const base64 = arrayBufferToBase64(exported);
-        const pem = formatPEM(base64, 'PUBLIC KEY');
-        
-        downloadFile(pem, 'public_key.pub', 'text/plain');
+        let pem = formatPEM(base64, 'PUBLIC KEY');
+        // Add an English note outside the key body (after the PEM footer)
+        // const webNote = '\n# WebCrypto Exchange: https://hosokawakenchi.github.io/webcrypto-exchange-kh/\n';
+        // pem = pem + webNote;
+        // Append generation date (YYYY-MM-DD) to filename
+        const date = new Date().toISOString().slice(0, 10);
+        const filename = `public_key_${date}.pub`;
+        downloadFile(pem, filename, 'text/plain');
     } catch (error) {
         showStatus('keyStatus', 'error', `エラー: ${error.message}`);
     }
@@ -78,8 +83,10 @@ async function downloadPrivateKey() {
         const exported = await window.crypto.subtle.exportKey('pkcs8', privateKey);
         const base64 = arrayBufferToBase64(exported);
         const pem = formatPEM(base64, 'PRIVATE KEY');
-        
-        downloadFile(pem, 'private_key.pem', 'text/plain');
+        // Append generation date (YYYY-MM-DD) to filename
+        const date = new Date().toISOString().slice(0, 10);
+        const filename = `private_key_${date}.pem`;
+        downloadFile(pem, filename, 'text/plain');
     } catch (error) {
         showStatus('keyStatus', 'error', `エラー: ${error.message}`);
     }
@@ -110,7 +117,7 @@ async function importPublicKeyFromPEM(pemContent) {
 
         return key;
     } catch (error) {
-        throw new Error(`公開鍵のインポートに失敗しました: ${error.message}`);
+        throw new Error(I18N.t('error.importPublicKey', error.message));
     }
 }
 
@@ -139,7 +146,7 @@ async function importPrivateKeyFromPEM(pemContent) {
 
         return key;
     } catch (error) {
-        throw new Error(`秘密鍵のインポートに失敗しました: ${error.message}`);
+        throw new Error(I18N.t('error.importPrivateKey', error.message));
     }
 }
 
@@ -170,10 +177,10 @@ async function encryptFile() {
         const fileToEncrypt = document.getElementById('fileToEncrypt').files[0];
 
         if (!publicKeyFile || !fileToEncrypt) {
-            throw new Error('公開鍵とファイルの両方を選択してください');
+            throw new Error(I18N.t('error.selectBoth.encrypt'));
         }
 
-        showStatus('encryptStatus', 'info', '暗号化処理中...');
+        showStatus('encryptStatus', 'info', I18N.t('status.encrypting'));
 
         // Import public key
         const pemContent = await readFileAsText(publicKeyFile);
@@ -225,13 +232,13 @@ async function encryptFile() {
         const encryptedJson = JSON.stringify(encryptedPackage, null, 2);
         downloadFile(encryptedJson, `${fileToEncrypt.name}.encrypted`, 'application/json');
 
-        showStatus('encryptStatus', 'success', `ファイルを暗号化しました！(${fileToEncrypt.name}.encrypted)`);
+        showStatus('encryptStatus', 'success', I18N.t('status.encrypted', `${fileToEncrypt.name}.encrypted`));
         document.getElementById('publicKeyFile').value = '';
         document.getElementById('fileToEncrypt').value = '';
 
     } catch (error) {
         console.error('Encryption error:', error);
-        showStatus('encryptStatus', 'error', `エラー: ${error.message || error}`);
+        showStatus('encryptStatus', 'error', I18N.t('error.generic', error.message || error));
     }
 }
 
@@ -242,10 +249,10 @@ async function decryptFile() {
         const fileToDecrypt = document.getElementById('fileToDecrypt').files[0];
 
         if (!privateKeyFile || !fileToDecrypt) {
-            throw new Error('秘密鍵と.encryptedファイルの両方を選択してください');
+            throw new Error(I18N.t('error.selectBoth.decrypt'));
         }
 
-        showStatus('decryptStatus', 'info', '復号処理中...');
+        showStatus('decryptStatus', 'info', I18N.t('status.decrypting'));
 
         // Import private key
         const pemContent = await readFileAsText(privateKeyFile);
@@ -295,7 +302,7 @@ async function decryptFile() {
                 encryptedBuffer
             );
         } else {
-            throw new Error(`サポートされていないフォーマット: version=${encryptedData.version}, algorithm=${encryptedData.algorithm}`);
+            throw new Error(I18N.t('error.unsupportedFormat', encryptedData.version, encryptedData.algorithm));
         }
 
         // Download decrypted file
@@ -311,13 +318,13 @@ async function decryptFile() {
         document.body.removeChild(a);
         URL.revokeObjectURL(url);
 
-        showStatus('decryptStatus', 'success', `ファイルを復号しました！(${originalFilename})`);
+        showStatus('decryptStatus', 'success', I18N.t('status.decrypted', originalFilename));
         document.getElementById('privateKeyFile').value = '';
         document.getElementById('fileToDecrypt').value = '';
 
     } catch (error) {
         console.error('Decryption error:', error);
-        showStatus('decryptStatus', 'error', `エラー: ${error.message || error}`);
+        showStatus('decryptStatus', 'error', I18N.t('error.generic', error.message || error));
     }
 }
 
@@ -343,12 +350,36 @@ function showStatus(elementId, type, message) {
 }
 
 // Event listeners
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('DOMContentLoaded', async () => {
+    // Initialize i18n first (loads translations and applies to DOM)
+    await I18N.init();
+
     document.getElementById('generateKeysBtn').addEventListener('click', generateKeyPair);
     document.getElementById('downloadPublicKeyBtn').addEventListener('click', downloadPublicKey);
     document.getElementById('downloadPrivateKeyBtn').addEventListener('click', downloadPrivateKey);
     document.getElementById('encryptFileBtn').addEventListener('click', encryptFile);
     document.getElementById('decryptFileBtn').addEventListener('click', decryptFile);
+
+    // Language selector
+    const langSelector = document.getElementById('langSelector');
+    if (langSelector) {
+        langSelector.addEventListener('change', async (e) => {
+            await I18N.setLang(e.target.value);
+            // Reset description so it reloads in the new language
+            descriptionLoaded = false;
+            const inlineContainer = document.getElementById('descriptionInline');
+            if (inlineContainer) inlineContainer.remove();
+            const notice = document.getElementById('descriptionFrameNotice');
+            if (notice) notice.remove();
+            // Remove previously injected description styles to avoid duplication
+            injectedStyleIds.forEach(id => { const el = document.getElementById(id); if (el) el.remove(); });
+            injectedStyleIds.clear();
+            if (descriptionIframe) {
+                descriptionIframe.style.display = '';
+                descriptionIframe.src = '';
+            }
+        });
+    }
     
     // Description panel toggle with iframe fallback (fetch+inject)
     const descriptionBtn = document.getElementById('descriptionBtn');
@@ -359,11 +390,16 @@ document.addEventListener('DOMContentLoaded', () => {
 
     let descriptionLoaded = false;
     let injectedStyleIds = new Set();
+    let _lastDescUrl = ''; // tracks the last resolved description URL for fallback notice
 
     async function tryLoadDescription() {
         if (descriptionLoaded) return;
 
-        const descriptionUrl = new URL('description.html', window.location.href).href;
+        // Locale-aware: all description files are in internationalization/ folder
+        const lang = I18N.currentLang;
+        const descFile = `internationalization/description.${lang}.html`;
+        const descriptionUrl = new URL(descFile, window.location.href).href;
+        _lastDescUrl = descriptionUrl;
 
         // First try: fetch the HTML directly (works when same-origin and CORS allows)
         try {
@@ -428,9 +464,9 @@ document.addEventListener('DOMContentLoaded', () => {
             console.warn('fetch(description.html) failed, falling back to iframe:', err);
         }
 
-        // Fallback: ensure iframe has correct relative URL and rely on iframe load
+        // Fallback: ensure iframe uses locale-aware URL
         try {
-            if (descriptionIframe) descriptionIframe.src = new URL('description.html', window.location.href).href;
+            if (descriptionIframe) descriptionIframe.src = descriptionUrl;
         } catch (e) {
             console.warn('setting iframe src failed:', e);
         }
@@ -461,9 +497,9 @@ document.addEventListener('DOMContentLoaded', () => {
                         notice.style.borderLeft = '4px solid #ffc107';
                         notice.style.margin = '8px';
                         const a = document.createElement('a');
-                        a.href = new URL('description.html', window.location.href).href;
+                        a.href = _lastDescUrl;
                         a.target = '_blank';
-                        a.textContent = '説明ページを別タブで開く（iframe に読み込めないため）';
+                        a.textContent = I18N.t('desc.panel.open-external');
                         notice.appendChild(a);
                         descriptionPanelContent.insertBefore(notice, descriptionPanelContent.firstChild);
                     }

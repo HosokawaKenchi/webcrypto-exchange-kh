@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>WebCrypto Exchange</title>
     <link rel="stylesheet" href="style.css">
+    <script src="i18n.js"></script>
     <style>
         #descriptionBtn {
             margin-top: 15px;
@@ -19,6 +20,34 @@
         }
         #descriptionBtn:hover {
             background-color: #138870;
+        }
+        /* Language selector */
+        #langSelectorWrap {
+            display: flex;
+            justify-content: flex-end;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 10px;
+            font-size: 13px;
+            color: #7f8c8d;
+        }
+        #langSelector {
+            padding: 4px 8px;
+            border: 1px solid #bdc3c7;
+            border-radius: 4px;
+            font-size: 13px;
+            cursor: pointer;
+            background: white;
+        }
+        /* JS-required notice */
+        #js-required-notice {
+            background: #e74c3c;
+            color: white;
+            padding: 14px 20px;
+            border-radius: 6px;
+            margin-bottom: 20px;
+            font-weight: bold;
+            text-align: center;
         }
         #descriptionPanel {
             display: none;
@@ -69,109 +98,131 @@
 </head>
 <body>
     <div class="container">
-        <h1>添付ファイル用の安全暗号化ツール</h1>
-        <p>パスワード付きZIPファイルを送り、その後にパスワードを別メールで送る手法「PPAP」は危険です。このツールは、それに代わって簡易的ではありますが、安全にファイルを暗号化・復号する方法を提供します。ブラウザ上で動作しますが情報を一切外部に送信しません。暗号化zipを作るアプリを持っていない方にもおすすめです。</p>
-        
-        <p style="text-align: center;"><button id="descriptionBtn" class="btn">📖 メール添付ファイルのパスワード付き暗号化の危険性と、安全な添付ファイルの送信方法とは？</button></p>
+        <!-- Language selector -->
+        <div id="langSelectorWrap">
+            <label for="langSelector" id="langSelectorLabel" data-i18n="lang.selector.label">言語 / Language:</label>
+            <select id="langSelector">
+                <option value="ja">日本語</option>
+                <option value="en">English</option>
+                <option value="es">Español</option>
+                <option value="fr">Français</option>
+                <option value="zh">中文</option>
+                <option value="ko">한국어</option>
+                <option value="de">Deutsch</option>
+            </select>
+        </div>
+
+        <h1 data-i18n="page.title">添付ファイル用の安全暗号化ツール</h1>
+
+        <!-- JS required notice (hidden by inline script below if JS is running) -->
+        <div id="js-required-notice">
+            ⚠️ このツールはJavaScriptが必要です。ブラウザのJavaScriptを有効にしてください。<br>
+            This tool requires JavaScript. Please enable JavaScript in your browser.
+        </div>
+        <script>document.getElementById('js-required-notice').style.display='none';</script>
+
+        <p data-i18n="page.intro">パスワード付きZIPファイルを送り、その後にパスワードを別メールで送る手法「PPAP」は危険です。このツールは、それに代わって簡易的ではありますが、安全にファイルを暗号化・復号する方法を提供します。ブラウザ上で動作しますが情報を一切外部に送信しません。暗号化zipを作るアプリを持っていない方にもおすすめです。このアプリは完全フリーなのでご自由にお使いいただき、広めてください。</p>
+
+        <p style="text-align: center;"><button id="descriptionBtn" class="btn" data-i18n="btn.description">📖 メール添付ファイルのパスワード付き暗号化の危険性と、安全な添付ファイルの送信方法とは？</button></p>
         <!-- キーペア生成セクション -->
         <section class="section">
-            <h2>1. キーペア生成</h2>
-            <p>公開鍵と秘密鍵のペアを生成します</p>
-            <p class="note"><strong>注意：</strong>受け取る側がこのページで鍵ペアを生成し、生成された公開鍵のみを、このページのURLと合わせてファイルを送る側に送付してください。秘密鍵は絶対に他人に共有しないでください。送る側は受け取った公開鍵を使用してファイルを暗号化します。そのファイルを添付して受け取ったら、受け取る側はこのページで秘密鍵を使いファイルを復号します。</p>
-            <button id="generateKeysBtn" class="btn btn-primary">キーペアを生成</button>
+            <h2 data-i18n="key.section.title">1. キーペア生成</h2>
+            <p data-i18n="key.section.desc">公開鍵と秘密鍵のペアを生成します</p>
+            <p class="note" data-i18n-html="key.note.html"></p>
+            <button id="generateKeysBtn" class="btn btn-primary" data-i18n="btn.generateKeys">キーペアを生成</button>
             <div id="keyStatus" class="status-message" style="display: none;"></div>
             
             <div id="downloadKeysContainer" style="display: none;" class="button-group">
-                <button id="downloadPublicKeyBtn" class="btn btn-secondary">公開鍵をダウンロード</button>
-                <button id="downloadPrivateKeyBtn" class="btn btn-secondary">秘密鍵をダウンロード</button>
+                <button id="downloadPublicKeyBtn" class="btn btn-secondary" data-i18n="btn.downloadPublicKey">公開鍵をダウンロード（相手に送る）</button>
+                <button id="downloadPrivateKeyBtn" class="btn btn-secondary" data-i18n="btn.downloadPrivateKey">秘密鍵をダウンロード（手元に保管）</button>
             </div>
         </section>
 
         <!-- ファイル暗号化セクション -->
         <section class="section">
-            <h2>2. ファイル暗号化（公開鍵使用）</h2>
-            <p>ローカルファイルを選択し、公開鍵で暗号化します</p>
+            <h2 data-i18n="encrypt.section.title">2. ファイル暗号化（公開鍵使用）</h2>
+            <p data-i18n="encrypt.section.desc">ローカルファイルを選択し、公開鍵で暗号化します</p>
             
             <div class="form-group">
-                <label for="publicKeyFile">公開鍵ファイルを選択：</label>
+                <label for="publicKeyFile" data-i18n="label.publicKeyFile">公開鍵ファイルを選択：</label>
                 <input type="file" id="publicKeyFile" accept=".pub,application/x-pem-file" class="file-input">
             </div>
-            
+
             <div class="form-group">
-                <label for="fileToEncrypt">暗号化するファイルを選択：</label>
+                <label for="fileToEncrypt" data-i18n="label.fileToEncrypt">暗号化するファイルを選択：</label>
                 <input type="file" id="fileToEncrypt" class="file-input">
             </div>
             
-            <button id="encryptFileBtn" class="btn btn-primary">ファイルを暗号化</button>
+            <button id="encryptFileBtn" class="btn btn-primary" data-i18n="btn.encryptFile">ファイルを暗号化</button>
             <div id="encryptStatus" class="status-message" style="display: none;"></div>
         </section>
 
         <!-- ファイル復号セクション -->
         <section class="section">
-            <h2>3. ファイル復号（秘密鍵使用）</h2>
-            <p>.encryptedファイルを選択し、秘密鍵で復号します</p>
+            <h2 data-i18n="decrypt.section.title">3. ファイル復号（秘密鍵使用）</h2>
+            <p data-i18n="decrypt.section.desc">.encryptedファイルを選択し、秘密鍵で復号します</p>
             
             <div class="form-group">
-                <label for="privateKeyFile">秘密鍵ファイルを選択：</label>
+                <label for="privateKeyFile" data-i18n="label.privateKeyFile">秘密鍵ファイルを選択：</label>
                 <input type="file" id="privateKeyFile" accept=".pem,application/x-pem-file" class="file-input">
             </div>
-            
+
             <div class="form-group">
-                <label for="fileToDecrypt">復号するファイル（.encrypted）を選択：</label>
+                <label for="fileToDecrypt" data-i18n="label.fileToDecrypt">復号するファイル（.encrypted）を選択：</label>
                 <input type="file" id="fileToDecrypt" accept=".encrypted,application/json" class="file-input">
             </div>
             
-            <button id="decryptFileBtn" class="btn btn-primary">ファイルを復号</button>
+            <button id="decryptFileBtn" class="btn btn-primary" data-i18n="btn.decryptFile">ファイルを復号</button>
             <div id="decryptStatus" class="status-message" style="display: none;"></div>
         </section>
 
         <!-- 情報セクション -->
         <section class="section info-section">
-            <h2>使用方法</h2>
-            <p>このツールでは、受取人が鍵ペアを生成し、公開鍵のみを送り手に送信します。送り手は受け取った公開鍵でファイルを暗号化し、受取人は秘密鍵でそれを復号します。</p>
+            <h2 data-i18n="info.title">使用方法</h2>
+            <p data-i18n="info.desc">このツールでは、受取人が鍵ペアを生成し、公開鍵のみを送り手に送信します。送り手は受け取った公開鍵でファイルを暗号化し、受取人は秘密鍵でそれを復号します。</p>
 
-            <h3>ステップバイステップ手順</h3>
-            <p><strong>受取人の作業：</strong></p>
+            <h3 data-i18n="info.steps.title">ステップバイステップ手順</h3>
+            <p><strong data-i18n="info.receiver.label">受取人の作業：</strong></p>
             <ol>
-                <li>このページの「キーペアを生成」ボタンをクリックしてRSA 2048ビットキーペアを生成します</li>
-                <li>「公開鍵をダウンロード」ボタンをクリックして、<code>public_key.pub</code>ファイルをダウンロードします</li>
-                <li>公開鍵ファイルを送り手に安全に送付します</li>
-                <li>「秘密鍵をダウンロード」ボタンをクリックして、<code>private_key.pem</code>ファイルをダウンロードし、安全に保管します</li>
+                <li data-i18n-html="info.receiver.1">このページの「キーペアを生成」ボタンをクリックしてRSA 2048ビットキーペアを生成します</li>
+                <li data-i18n-html="info.receiver.2">「公開鍵をダウンロード」ボタンをクリックして、<code>public_key.pub</code>ファイルをダウンロードします</li>
+                <li data-i18n="info.receiver.3">公開鍵ファイルを送り手に安全に送付します</li>
+                <li data-i18n-html="info.receiver.4">「秘密鍵をダウンロード」ボタンをクリックして、<code>private_key.pem</code>ファイルをダウンロードし、安全に保管します</li>
             </ol>
-            
-            <p><strong>送り手の作業：</strong></p>
+
+            <p><strong data-i18n="info.sender.label">送り手の作業：</strong></p>
             <ol>
-                <li>受け取った公開鍵ファイル（<code>public_key.pub</code>）を「公開鍵ファイルを選択」で選択します</li>
-                <li>暗号化したいファイルを「暗号化するファイルを選択」で選択します</li>
-                <li>「ファイルを暗号化」ボタンをクリックします</li>
-                <li>暗号化されたファイル（<code>ファイル名.encrypted</code>）が自動的にダウンロードされます</li>
-                <li>暗号化ファイルを受取人に送付します</li>
+                <li data-i18n-html="info.sender.1">受け取った公開鍵ファイル（<code>public_key.pub</code>）を「公開鍵ファイルを選択」で選択します</li>
+                <li data-i18n="info.sender.2">暗号化したいファイルを「暗号化するファイルを選択」で選択します</li>
+                <li data-i18n="info.sender.3">「ファイルを暗号化」ボタンをクリックします</li>
+                <li data-i18n-html="info.sender.4">暗号化されたファイル（<code>ファイル名.encrypted</code>）が自動的にダウンロードされます</li>
+                <li data-i18n="info.sender.5">暗号化ファイルを受取人に送付します</li>
             </ol>
-            
-            <p><strong>受取人の復号作業：</strong></p>
+
+            <p><strong data-i18n="info.decrypt.label">受取人の復号作業：</strong></p>
             <ol>
-                <li>「秘密鍵ファイルを選択」で、保管していた<code>private_key.pem</code>を選択します</li>
-                <li>「復号するファイル（.encrypted）を選択」で、受け取った暗号化ファイルを選択します</li>
-                <li>「ファイルを復号」ボタンをクリックします</li>
-                <li>復号されたファイルが自動的にダウンロードされます</li>
+                <li data-i18n-html="info.decrypt.1">「秘密鍵ファイルを選択」で、保管していた<code>private_key.pem</code>を選択します</li>
+                <li data-i18n="info.decrypt.2">「復号するファイル（.encrypted）を選択」で、受け取った暗号化ファイルを選択します</li>
+                <li data-i18n="info.decrypt.3">「ファイルを復号」ボタンをクリックします</li>
+                <li data-i18n="info.decrypt.4">復号されたファイルが自動的にダウンロードされます</li>
             </ol>
-            
-            <h3>セキュリティに関する注意</h3>
+
+            <h3 data-i18n="info.security.title">セキュリティに関する注意</h3>
             <ul>
-                <li>すべての処理はブラウザ上で実行されます（サーバーに送信されません）</li>
-                <li>秘密鍵は絶対に第三者と共有しないでください</li>
-                <li>秘密鍵は安全な場所に保管してください</li>
-                <li>複数のコンピュータで使用する場合、秘密鍵を安全に移動させてください</li>
+                <li data-i18n="info.security.1">すべての処理はブラウザ上で実行されます（サーバーに送信されません）</li>
+                <li data-i18n="info.security.2">秘密鍵は絶対に第三者と共有しないでください</li>
+                <li data-i18n="info.security.3">秘密鍵は安全な場所に保管してください</li>
+                <li data-i18n="info.security.4">複数のコンピュータで使用する場合、秘密鍵を安全に移動させてください</li>
             </ul>
-            <h3>ライセンス</h3>
-            <p>このプロジェクトはMITライセンスの下で配布されています。詳しくはリポジトリの <a href="LICENSE">LICENSE</a> ファイルを参照してください。</p>
+            <h3 data-i18n="info.license.title">ライセンス</h3>
+            <p data-i18n-html="info.license.text">このプロジェクトはMITライセンスの下で配布されています。詳しくはリポジトリの <a href="LICENSE">LICENSE</a> ファイルを参照してください。</p>
         </section>
     </div>
 
     <!-- 説明パネル -->
     <div id="descriptionPanel">
         <div id="descriptionPanelContent">
-            <button id="closeDescriptionBtn">✕ 閉じる</button>
+            <button id="closeDescriptionBtn" data-i18n="desc.panel.close">✕ 閉じる</button>
             <iframe id="descriptionIframe" src="description.html"></iframe>
         </div>
     </div>
