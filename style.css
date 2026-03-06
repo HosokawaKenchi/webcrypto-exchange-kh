@@ -55,6 +55,16 @@ h1 {
     font-size: 0.95em;
 }
 
+.section .note {
+    background-color: #fff3cd;
+    border: 1px solid #ffc107;
+    border-radius: 5px;
+    padding: 12px;
+    margin-bottom: 15px;
+    color: #856404;
+    line-height: 1.6;
+}
+
 .section ol, .section ul {
     margin-left: 20px;
     color: #555;
