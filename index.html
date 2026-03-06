@@ -3,6 +3,15 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="暗号化・復号化ツール - WebCrypto APIを使用したセキュアなデータ交換">
+    <meta name="theme-color" content="#16a085">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="WebCrypto">
+    <link rel="icon" type="image/svg+xml" href="icon.svg">
+    <link rel="apple-touch-icon" href="icon-192.png">
+    <link rel="manifest" href="manifest.json">
     <title>WebCrypto Exchange</title>
     <link rel="stylesheet" href="style.css">
     <script src="i18n.js"></script>
@@ -228,6 +237,8 @@
                 <li data-i18n="info.security.3">秘密鍵は安全な場所に保管してください</li>
                 <li data-i18n="info.security.4">複数のコンピュータで使用する場合、秘密鍵を安全に移動させてください</li>
             </ul>
+            <h3>PWA Application</h3>
+            <p data-i18n="info.install.pwa">Chrome および Edge では、アドレスバーのインストールアイコンから本アプリをローカルにインストールできます。</p>
             <h3 data-i18n="info.license.title">ライセンス</h3>
             <p data-i18n-html="info.license.text">このプロジェクトはMITライセンスの下で配布されています。詳しくはリポジトリの <a href="LICENSE">LICENSE</a> ファイルを参照してください。</p>
         </section>
@@ -242,5 +253,34 @@
     </div>
 
     <script src="script.js"></script>
+    
+    <!-- Service Worker registration for PWA offline support -->
+    <script>
+    if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+            navigator.serviceWorker.register('service-worker.js')
+                .then(registration => {
+                    console.log('[PWA] Service Worker registered:', registration);
+                    
+                    // Check for updates periodically
+                    setInterval(() => {
+                        registration.update();
+                    }, 60000); // Check every minute
+                })
+                .catch(error => {
+                    console.error('[PWA] Service Worker registration failed:', error);
+                });
+        });
+
+        // Handle Service Worker updates
+        navigator.serviceWorker.addEventListener('controllerchange', () => {
+            console.log('[PWA] Service Worker controller changed');
+            // Optionally notify the user about updates
+            // showUpdateNotification();
+        });
+    } else {
+        console.warn('[PWA] Service Workers are not supported in this browser');
+    }
+    </script>
 </body>
 </html>

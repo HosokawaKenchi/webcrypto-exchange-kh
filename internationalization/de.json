@@ -59,6 +59,7 @@
   "info.security.2": "Der private Schlüssel darf niemals mit Dritten geteilt werden",
   "info.security.3": "Speichern Sie den privaten Schlüssel an einem sicheren Ort",
   "info.security.4": "Wenn Sie mehrere Computer verwenden, übertragen Sie den privaten Schlüssel sicher",
+    "info.install.pwa": "In Chrome und Edge können Sie diese App über das Installationssymbol in der Adressleiste lokal installieren.",
   "info.license.title": "Lizenz",
   "info.license.text": "Dieses Projekt wird unter der MIT-Lizenz vertrieben. Weitere Informationen finden Sie in der Datei <a href=\"LICENSE\">LICENSE</a> im Repository.",
 

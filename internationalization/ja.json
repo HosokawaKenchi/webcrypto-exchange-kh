@@ -59,6 +59,7 @@
   "info.security.2": "秘密鍵は絶対に第三者と共有しないでください",
   "info.security.3": "秘密鍵は安全な場所に保管してください",
   "info.security.4": "複数のコンピュータで使用する場合、秘密鍵を安全に移動させてください",
+  "info.install.pwa": "Chrome および Edge では、アドレスバーのインストールアイコンから本アプリをローカルにインストールできます。",
   "info.license.title": "ライセンス",
   "info.license.text": "このプロジェクトはMITライセンスの下で配布されています。詳しくはリポジトリの <a href=\"LICENSE\">LICENSE</a> ファイルを参照してください。",
 

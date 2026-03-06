@@ -57,6 +57,7 @@
   "info.security.2": "请勿与任何人共享您的私钥",
   "info.security.3": "将您的私钥存储在安全位置",
   "info.security.4": "如果在多台计算机上使用，请安全地传输您的私钥",
+    "info.install.pwa": "在 Chrome 和 Edge 中，可从地址栏的安装图标将此应用安装到本地。",
   "info.license.title": "许可证",
   "info.license.text": "本项目在MIT许可证下分发。有关详细信息，请参阅存储库中的<a href=\"LICENSE\">LICENSE</a>文件。",
 

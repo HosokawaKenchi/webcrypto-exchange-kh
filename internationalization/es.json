@@ -57,6 +57,7 @@
   "info.security.2": "Nunca comparta su clave privada con nadie",
   "info.security.3": "Guarde su clave privada en un lugar seguro",
   "info.security.4": "Si utiliza en varias computadoras, transfiera su clave privada de forma segura",
+  "info.install.pwa": "En Chrome y Edge puede instalar esta aplicación localmente desde el icono de instalación en la barra de direcciones.",
   "info.license.title": "Licencia",
   "info.license.text": "Este proyecto se distribuye bajo la Licencia MIT. Vea el archivo <a href=\"LICENSE\">LICENSE</a> en el repositorio para más detalles.",
 

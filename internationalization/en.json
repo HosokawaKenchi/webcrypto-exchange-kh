@@ -57,6 +57,7 @@
   "info.security.2": "Never share your private key with anyone",
   "info.security.3": "Store your private key in a safe location",
   "info.security.4": "If using on multiple computers, transfer your private key securely",
+    "info.install.pwa": "On Chrome and Edge you can install this app locally from the install icon in the address bar.",
   "info.license.title": "License",
   "info.license.text": "This project is distributed under the MIT License. See the <a href=\"LICENSE\">LICENSE</a> file in the repository for details.",
 

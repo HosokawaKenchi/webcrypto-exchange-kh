@@ -5,6 +5,16 @@ let privateKey = null;
 // LocalStorage key for storing key history
 const KEY_HISTORY_STORAGE_KEY = 'wcx-key-history';
 
+// Date/time formatting for filenames: YYYY-MM-DD-HH_MM
+function formatDateTimeForFilename(d = new Date()) {
+    const pad = (n) => String(n).padStart(2, '0');
+    const yyyy = d.getFullYear();
+    const mm = pad(d.getMonth() + 1);
+    const dd = pad(d.getDate());
+    const hh = pad(d.getHours());
+    const min = pad(d.getMinutes());
+    return `${yyyy}-${mm}-${dd}-${hh}_${min}`;
+}
 // LocalStorage management functions
 function getKeyHistory() {
     const stored = localStorage.getItem(KEY_HISTORY_STORAGE_KEY);
@@ -12,8 +22,8 @@ function getKeyHistory() {
 }
 
 function saveKeyToHistory(publicKeyPem, privateKeyPem) {
-    const date = new Date().toISOString().slice(0, 10);
-    const timestamp = new Date().getTime();
+    const date = formatDateTimeForFilename(new Date());
+    const timestamp = Date.now();
     const keyEntry = {
         id: timestamp,
         date: date,
@@ -126,8 +136,8 @@ async function downloadPublicKey() {
         // Add an English note outside the key body (after the PEM footer)
         // const webNote = '\n# WebCrypto Exchange: https://hosokawakenchi.github.io/webcrypto-exchange-kh/\n';
         // pem = pem + webNote;
-        // Append generation date (YYYY-MM-DD) to filename
-        const date = new Date().toISOString().slice(0, 10);
+        // Append generation date (YYYY-MM-DD-HH_MM) to filename
+        const date = formatDateTimeForFilename(new Date());
         const filename = `public_key_${date}.pub`;
         downloadFile(pem, filename, 'text/plain');
     } catch (error) {
@@ -141,8 +151,8 @@ async function downloadPrivateKey() {
         const exported = await window.crypto.subtle.exportKey('pkcs8', privateKey);
         const base64 = arrayBufferToBase64(exported);
         const pem = formatPEM(base64, 'PRIVATE KEY');
-        // Append generation date (YYYY-MM-DD) to filename
-        const date = new Date().toISOString().slice(0, 10);
+        // Append generation date (YYYY-MM-DD-HH_MM) to filename
+        const date = formatDateTimeForFilename(new Date());
         const filename = `private_key_${date}.pem`;
         downloadFile(pem, filename, 'text/plain');
     } catch (error) {
@@ -464,13 +474,23 @@ function updateKeyHistoryDisplay() {
         return;
     }
     
+    const keyCount = history.length;
+    
+    // Compact header (always visible)
     let html = `
         <div class="key-history-section">
-            <h3 data-i18n="keyhistory.title">鍵ペア履歴</h3>
-            <p class="note" style="background-color: #fff3cd; border: 1px solid #ffc107; border-radius: 5px; padding: 12px; margin-bottom: 15px; color: #856404;">
-                <strong data-i18n="keyhistory.warning.title">⚠️ 注意：</strong> <span data-i18n="keyhistory.warning.text">このリストはブラウザのLocalStorageに保存されています。ブラウザキャッシュの削除、ブラウザのリセット、デバイスの工場出荷時リセットなどにより、保存されたキーが削除される場合があります。重要な秘密鍵は別の安全な場所にも保管してください。</span>
-            </p>
-            <div class="key-history-list">
+            <div class="key-history-header">
+                <button class="key-history-toggle-btn" id="keyHistoryToggleBtn">
+                    <span class="toggle-arrow">▼</span>
+                    <span data-i18n="keyhistory.title">鍵ペア履歴</span>
+                    <span class="key-count">(${keyCount})</span>
+                </button>
+            </div>
+            <div class="key-history-content" id="keyHistoryContent" style="display: none;">
+                <p class="note" style="background-color: #fff3cd; border: 1px solid #ffc107; border-radius: 5px; padding: 12px; margin-bottom: 15px; color: #856404;">
+                    <strong data-i18n="keyhistory.warning.title">⚠️ 注意：</strong> <span data-i18n="keyhistory.warning.text">このリストはブラウザのLocalStorageに保存されています。ブラウザキャッシュの削除、ブラウザのリセット、デバイスの工場出荷時リセットなどにより、保存されたキーが削除される場合があります。重要な秘密鍵は別の安全な場所にも保管してください。</span>
+                </p>
+                <div class="key-history-list">
     `;
     
     // Display in reverse order (newest first)
@@ -491,8 +511,9 @@ function updateKeyHistoryDisplay() {
     });
     
     html += `
+                </div>
+                <button class="btn btn-danger" id="clearAllKeysBtn" data-i18n="btn.clearAllKeys">履歴をすべてクリア</button>
             </div>
-            <button class="btn btn-danger" id="clearAllKeysBtn" data-i18n="btn.clearAllKeys">履歴をすべてクリア</button>
         </div>
     `;
     
@@ -500,6 +521,24 @@ function updateKeyHistoryDisplay() {
     
     // Apply i18n to newly created elements
     I18N.applyToDOM(historyContainer);
+    
+    // Toggle button
+    const toggleBtn = document.getElementById('keyHistoryToggleBtn');
+    const content = document.getElementById('keyHistoryContent');
+    const arrow = toggleBtn.querySelector('.toggle-arrow');
+    
+    toggleBtn.addEventListener('click', () => {
+        const isHidden = content.style.display === 'none';
+        if (isHidden) {
+            content.style.display = 'block';
+            arrow.textContent = '▲';
+            toggleBtn.classList.add('expanded');
+        } else {
+            content.style.display = 'none';
+            arrow.textContent = '▼';
+            toggleBtn.classList.remove('expanded');
+        }
+    });
     
     // Attach event listeners
     historyContainer.querySelectorAll('.key-download-btn').forEach(btn => {
