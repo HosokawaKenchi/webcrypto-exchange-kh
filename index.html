@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WebCrypto Exchange KH</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <h1>WebCrypto Exchange KH</h1>
+        <p class="subtitle">ブラウザ上での安全なファイル暗号化・復号ツール</p>
+
+        <!-- キーペア生成セクション -->
+        <section class="section">
+            <h2>1. キーペア生成</h2>
+            <p>公開鍵と秘密鍵のペアを生成します</p>
+            <button id="generateKeysBtn" class="btn btn-primary">キーペアを生成</button>
+            <div id="keyStatus" class="status-message" style="display: none;"></div>
+            
+            <div id="downloadKeysContainer" style="display: none;" class="button-group">
+                <button id="downloadPublicKeyBtn" class="btn btn-secondary">公開鍵をダウンロード</button>
+                <button id="downloadPrivateKeyBtn" class="btn btn-secondary">秘密鍵をダウンロード</button>
+            </div>
+        </section>
+
+        <!-- ファイル暗号化セクション -->
+        <section class="section">
+            <h2>2. ファイル暗号化（公開鍵使用）</h2>
+            <p>ローカルファイルを選択し、公開鍵で暗号化します</p>
+            
+            <div class="form-group">
+                <label for="publicKeyFile">公開鍵ファイルを選択：</label>
+                <input type="file" id="publicKeyFile" accept=".pub,application/x-pem-file" class="file-input">
+            </div>
+            
+            <div class="form-group">
+                <label for="fileToEncrypt">暗号化するファイルを選択：</label>
+                <input type="file" id="fileToEncrypt" class="file-input">
+            </div>
+            
+            <button id="encryptFileBtn" class="btn btn-primary">ファイルを暗号化</button>
+            <div id="encryptStatus" class="status-message" style="display: none;"></div>
+        </section>
+
+        <!-- ファイル復号セクション -->
+        <section class="section">
+            <h2>3. ファイル復号（秘密鍵使用）</h2>
+            <p>.wcxファイルを選択し、秘密鍵で復号します</p>
+            
+            <div class="form-group">
+                <label for="privateKeyFile">秘密鍵ファイルを選択：</label>
+                <input type="file" id="privateKeyFile" accept=".pem,application/x-pem-file" class="file-input">
+            </div>
+            
+            <div class="form-group">
+                <label for="fileToDecrypt">復号するファイル（.wcx）を選択：</label>
+                <input type="file" id="fileToDecrypt" accept=".wcx" class="file-input">
+            </div>
+            
+            <button id="decryptFileBtn" class="btn btn-primary">ファイルを復号</button>
+            <div id="decryptStatus" class="status-message" style="display: none;"></div>
+        </section>
+
+        <!-- 情報セクション -->
+        <section class="section info-section">
+            <h2>使用方法</h2>
+            <ol>
+                <li>「キーペアを生成」ボタンをクリックしてRSAキーペアを生成します</li>
+                <li>生成された公開鍵と秘密鍵をダウンロードしてください</li>
+                <li>暗号化したいファイルを選択し、公開鍵ファイルを指定して「ファイルを暗号化」します</li>
+                <li>暗号化されたファイル（.wcx）は自動的にダウンロードされます</li>
+                <li>復号する場合、秘密鍵ファイルと.wcxファイルを指定して「ファイルを復号」します</li>
+            </ol>
+            
+            <h3>セキュリティに関する注意</h3>
+            <ul>
+                <li>すべての処理はブラウザ上で実行されます（サーバーに送信されません）</li>
+                <li>秘密鍵は絶対に第三者と共有しないでください</li>
+                <li>秘密鍵は安全な場所に保管してください</li>
+                <li>複数のコンピュータで使用する場合、秘密鍵を安全に移動させてください</li>
+            </ul>
+        </section>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
