@@ -350,19 +350,132 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('encryptFileBtn').addEventListener('click', encryptFile);
     document.getElementById('decryptFileBtn').addEventListener('click', decryptFile);
     
-    // Description panel toggle
+    // Description panel toggle with iframe fallback (fetch+inject)
     const descriptionBtn = document.getElementById('descriptionBtn');
     const descriptionPanel = document.getElementById('descriptionPanel');
     const closeDescriptionBtn = document.getElementById('closeDescriptionBtn');
-    
-    descriptionBtn.addEventListener('click', () => {
+    const descriptionIframe = document.getElementById('descriptionIframe');
+    const descriptionPanelContent = document.getElementById('descriptionPanelContent');
+
+    let descriptionLoaded = false;
+    let injectedStyleIds = new Set();
+
+    async function tryLoadDescription() {
+        if (descriptionLoaded) return;
+
+        const descriptionUrl = new URL('description.html', window.location.href).href;
+
+        // First try: fetch the HTML directly (works when same-origin and CORS allows)
+        try {
+            const resp = await fetch(descriptionUrl, { method: 'GET', credentials: 'same-origin' });
+            if (resp.ok) {
+                const text = await resp.text();
+                // Parse and inject styles + body content
+                const parser = new DOMParser();
+                const doc = parser.parseFromString(text, 'text/html');
+
+                // Inject <style> tags from the fetched document into current head (only once)
+                const styles = doc.querySelectorAll('head style');
+                styles.forEach((s, idx) => {
+                    const id = 'desc-style-' + idx;
+                    if (!injectedStyleIds.has(id)) {
+                        const ns = document.createElement('style');
+                        ns.textContent = s.textContent;
+                        ns.id = id;
+                        document.head.appendChild(ns);
+                        injectedStyleIds.add(id);
+                    }
+                });
+
+                // If there are link[rel=stylesheet], append them as well
+                const links = doc.querySelectorAll('head link[rel="stylesheet"]');
+                links.forEach((lnk) => {
+                    try {
+                        const href = lnk.getAttribute('href');
+                        if (href) {
+                            const linkEl = document.createElement('link');
+                            linkEl.rel = 'stylesheet';
+                            // resolve relative href
+                            linkEl.href = new URL(href, descriptionUrl).href;
+                            document.head.appendChild(linkEl);
+                        }
+                    } catch (e) {
+                        // ignore
+                    }
+                });
+
+                // Insert body content into a container inside the modal
+                let inlineContainer = document.getElementById('descriptionInline');
+                if (!inlineContainer) {
+                    inlineContainer = document.createElement('div');
+                    inlineContainer.id = 'descriptionInline';
+                    inlineContainer.style.overflow = 'auto';
+                    inlineContainer.style.padding = '16px';
+                    inlineContainer.style.flex = '1 1 auto';
+                    descriptionPanelContent.appendChild(inlineContainer);
+                }
+
+                inlineContainer.innerHTML = doc.body.innerHTML;
+
+                // Hide iframe if present
+                if (descriptionIframe) descriptionIframe.style.display = 'none';
+
+                descriptionLoaded = true;
+                return;
+            }
+        } catch (err) {
+            // fetch failed (could be CORS or other network error). We'll fall back to iframe.
+            console.warn('fetch(description.html) failed, falling back to iframe:', err);
+        }
+
+        // Fallback: ensure iframe has correct relative URL and rely on iframe load
+        try {
+            if (descriptionIframe) descriptionIframe.src = new URL('description.html', window.location.href).href;
+        } catch (e) {
+            console.warn('setting iframe src failed:', e);
+        }
+
+        // Try to detect if iframe is accessible; if not, provide a link message later when user opens panel
+        descriptionLoaded = true; // avoid retrying on repeated opens
+    }
+
+    descriptionBtn.addEventListener('click', async () => {
+        await tryLoadDescription();
         descriptionPanel.classList.add('active');
+
+        // If iframe is visible but cross-origin blocks access, show a fallback link inside the panel
+        if (descriptionIframe && descriptionIframe.style.display !== 'none') {
+            setTimeout(() => {
+                try {
+                    // Accessing contentDocument will throw if cross-origin
+                    const doc = descriptionIframe.contentDocument || descriptionIframe.contentWindow.document;
+                    // If accessible, do nothing
+                } catch (e) {
+                    // Cross-origin: show a prominent link to open in new tab
+                    let notice = document.getElementById('descriptionFrameNotice');
+                    if (!notice) {
+                        notice = document.createElement('div');
+                        notice.id = 'descriptionFrameNotice';
+                        notice.style.padding = '12px';
+                        notice.style.background = '#fff3cd';
+                        notice.style.borderLeft = '4px solid #ffc107';
+                        notice.style.margin = '8px';
+                        const a = document.createElement('a');
+                        a.href = new URL('description.html', window.location.href).href;
+                        a.target = '_blank';
+                        a.textContent = '説明ページを別タブで開く（iframe に読み込めないため）';
+                        notice.appendChild(a);
+                        descriptionPanelContent.insertBefore(notice, descriptionPanelContent.firstChild);
+                    }
+                }
+            }, 300);
+        }
     });
-    
+
     closeDescriptionBtn.addEventListener('click', () => {
         descriptionPanel.classList.remove('active');
     });
-    
+
     // Close panel when clicking outside the content area
     descriptionPanel.addEventListener('click', (e) => {
         if (e.target === descriptionPanel) {
