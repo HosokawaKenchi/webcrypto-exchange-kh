@@ -16,6 +16,11 @@
     <link rel="stylesheet" href="style.css">
     <script src="i18n.js"></script>
     <style>
+        /* Base page background (moved from description.*.html) */
+        body {
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            min-height: 100vh;
+        }
         #descriptionBtn {
             margin-top: 15px;
             background-color: #16a085;
@@ -114,10 +119,10 @@
                 <option value="ja">日本語</option>
                 <option value="en">English</option>
                 <option value="es">Español</option>
-                <option value="fr">Français</option>
-                <option value="zh">中文</option>
-                <option value="ko">한국어</option>
                 <option value="de">Deutsch</option>
+                <option value="fr">Français</option>
+                <option value="ko">한국어</option>
+                <option value="zh">中文</option>
             </select>
         </div>
 
@@ -212,6 +217,27 @@
                 <li data-i18n="info.receiver.3">公開鍵ファイルを送り手に安全に送付します</li>
                 <li data-i18n-html="info.receiver.4">「秘密鍵をダウンロード」ボタンをクリックして、<code>private_key.pem</code>ファイルをダウンロードし、安全に保管します</li>
             </ol>
+            <!-- Global throbber (hidden by default) -->
+            <div id="global-throbber" aria-hidden="true" style="display:none;">
+                <div class="throbber-backdrop"></div>
+                <div class="throbber-content" role="status" aria-live="polite">
+                    <div class="throbber-spinner" aria-hidden="true"></div>
+                    <div class="throbber-text">処理中…</div>
+                </div>
+            </div>
+
+                <!-- Large file confirmation modal -->
+                <div id="large-file-modal" aria-hidden="true" style="display:none;">
+                    <div class="modal-backdrop"></div>
+                    <div class="modal-content" role="dialog" aria-modal="true">
+                        <h3 id="large-file-title"></h3>
+                        <p id="large-file-message"></p>
+                        <div style="display:flex; gap:8px; justify-content:flex-end; margin-top:12px;">
+                            <button id="large-file-cancel" class="btn btn-secondary"></button>
+                            <button id="large-file-continue" class="btn btn-primary"></button>
+                        </div>
+                    </div>
+                </div>
 
             <p><strong data-i18n="info.sender.label">送り手の作業：</strong></p>
             <ol>
@@ -254,30 +280,130 @@
 
     <script src="script.js"></script>
     
+    <!-- Service Worker Update Banner CSS -->
+    <style>
+        /* Update banner */
+        #sw-update-banner {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: linear-gradient(135deg, #16a085 0%, #138870 100%);
+            color: white;
+            padding: 14px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 12px;
+            box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.2);
+            font-size: 14px;
+            z-index: 999;
+            animation: slideUp 0.3s ease-out;
+        }
+        @keyframes slideUp { from { transform: translateY(100%); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+        #sw-update-banner button { background: white; color: #16a085; border: none; padding: 8px 16px; border-radius: 4px; font-weight: bold; cursor: pointer; transition: all 0.3s ease; white-space: nowrap; }
+        #sw-update-banner button:hover { background: #f0f0f0; transform: scale(1.05); }
+        #sw-update-banner .close-banner { background: transparent; color: white; padding: 4px 8px; cursor: pointer; }
+        #sw-update-banner .close-banner:hover { background: rgba(255,255,255,0.2); }
+
+        /* Global throbber (overlay) */
+        #global-throbber { position: fixed; inset: 0; display: none; align-items: center; justify-content: center; z-index: 1500; }
+        #global-throbber[aria-hidden="false"] { display: flex; }
+        .throbber-backdrop { position: absolute; inset: 0; background: rgba(0,0,0,0.25); backdrop-filter: blur(2px); }
+        .throbber-content { position: relative; z-index: 1501; display: flex; flex-direction: column; align-items: center; gap: 12px; padding: 18px 22px; background: rgba(255,255,255,0.98); border-radius: 10px; box-shadow: 0 6px 30px rgba(0,0,0,0.25); }
+        .throbber-spinner { width: 48px; height: 48px; border: 5px solid #eee; border-top-color: #16a085; border-radius: 50%; animation: spin 1s linear infinite; }
+        .throbber-text { font-size: 16px; color: #333; }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        @media (max-width: 480px) { .throbber-content { width: 80vw; } }
+
+        /* Large-file confirmation modal */
+        #large-file-modal { position: fixed; inset: 0; display: none; align-items: center; justify-content: center; z-index: 1600; }
+        #large-file-modal[aria-hidden="false"] { display: flex; }
+        #large-file-modal .modal-backdrop { position: absolute; inset: 0; background: rgba(0,0,0,0.35); }
+        #large-file-modal .modal-content { position: relative; z-index: 1601; background: white; padding: 18px 20px; border-radius: 10px; max-width: 640px; width: 90%; box-shadow: 0 8px 30px rgba(0,0,0,0.25); }
+        #large-file-modal h3 { margin: 0 0 8px 0; font-size: 18px; }
+        #large-file-modal p { margin: 0; color: #333; }
+
+    </style>
+    
     <!-- Service Worker registration for PWA offline support -->
     <script>
     if ('serviceWorker' in navigator) {
+        let swRegistration = null;
+
         window.addEventListener('load', () => {
             navigator.serviceWorker.register('service-worker.js')
                 .then(registration => {
+                    swRegistration = registration;
                     console.log('[PWA] Service Worker registered:', registration);
                     
-                    // Check for updates periodically
+                    // Check for updates on load
+                    registration.update();
+                    
+                    // Check for updates periodically (every 60 seconds)
                     setInterval(() => {
                         registration.update();
-                    }, 60000); // Check every minute
+                    }, 60000);
+                    
+                    // Check if there's already a waiting SW
+                    if (registration.waiting) {
+                        showUpdateBanner(registration);
+                    }
+                    
+                    // Listen for new SW installation
+                    registration.addEventListener('updatefound', () => {
+                        const newSW = registration.installing;
+                        newSW.addEventListener('statechange', () => {
+                            if (newSW.state === 'installed' && navigator.serviceWorker.controller) {
+                                console.log('[PWA] New Service Worker waiting to activate');
+                                showUpdateBanner(registration);
+                            }
+                        });
+                    });
                 })
                 .catch(error => {
                     console.error('[PWA] Service Worker registration failed:', error);
                 });
         });
 
-        // Handle Service Worker updates
+        // Handle Service Worker activation and page reload
         navigator.serviceWorker.addEventListener('controllerchange', () => {
-            console.log('[PWA] Service Worker controller changed');
-            // Optionally notify the user about updates
-            // showUpdateNotification();
+            console.log('[PWA] Service Worker controller changed - reloading page');
+            window.location.reload();
         });
+
+        // Show update notification banner
+        function showUpdateBanner(registration) {
+            // Avoid showing multiple banners
+            if (document.getElementById('sw-update-banner')) return;
+
+            const banner = document.createElement('div');
+            banner.id = 'sw-update-banner';
+            banner.innerHTML = `
+                <span>新しいバージョンがあります。</span>
+                <div style="display: flex; gap: 8px;">
+                    <button id="update-now-btn">今すぐ更新</button>
+                    <button class="close-banner" id="dismiss-update-btn">閉じる</button>
+                </div>
+            `;
+            
+            document.body.appendChild(banner);
+
+            // Update button action
+            document.getElementById('update-now-btn').addEventListener('click', () => {
+                console.log('[PWA] User requested update');
+                if (registration.waiting) {
+                    registration.waiting.postMessage({ action: 'skipWaiting' });
+                    banner.remove();
+                }
+            });
+
+            // Dismiss button action
+            document.getElementById('dismiss-update-btn').addEventListener('click', () => {
+                console.log('[PWA] User dismissed update notification');
+                banner.remove();
+            });
+        }
     } else {
         console.warn('[PWA] Service Workers are not supported in this browser');
     }

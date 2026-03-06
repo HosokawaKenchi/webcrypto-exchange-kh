@@ -155,48 +155,52 @@
     <h3>1. 자물쇠 비유</h3>
     <p>공개 키 암호화는 한 쌍의 열쇠를 사용합니다: <strong>공개 키</strong>와 <strong>개인 키</strong>.</p>
 
-    <figure style="text-align:center;margin:30px 0;padding:20px;background:#f9f9f9;border-radius:8px;">
-        <svg viewBox="0 0 800 250" style="max-width:100%;height:auto;">
-            <text x="100" y="30" font-size="14" font-weight="bold" fill="#2c3e50">1단계. 열쇠 만들기 (수신자)</text>
+    <figure style="text-align: center; margin: 30px 0; padding: 20px; background: #f9f9f9; border-radius: 8px;">
+        <svg viewBox="0 0 800 250" style="max-width: 100%; height: auto;">
+            <!-- 수신자가 키 쌍 생성 -->
+            <text x="100" y="30" font-size="14" font-weight="bold" fill="#2c3e50">1단계. 키 생성 (수신자)</text>
             <circle cx="100" cy="80" r="30" fill="#2ecc71"/>
             <text x="100" y="85" font-size="12" text-anchor="middle" fill="white">수신자</text>
-            <path d="M 130 70 L 180 70" stroke="#2c3e50" stroke-width="2" fill="none" marker-end="url(#aD2)"/>
+            <path d="M 130 70 L 180 70" stroke="#2c3e50" stroke-width="2" fill="none" marker-end="url(#arrowDark)"/>
             <rect x="180" y="55" width="60" height="30" rx="5" fill="#f39c12" stroke="#d68910" stroke-width="2"/>
-            <text x="210" y="75" font-size="11" text-anchor="middle" fill="white">🔓 공개</text>
-            <path d="M 130 90 L 180 90" stroke="#2c3e50" stroke-width="2" fill="none" marker-end="url(#aD2)"/>
+            <text x="210" y="75" font-size="11" text-anchor="middle" fill="white">🔓 공개키</text>
+            <path d="M 130 90 L 180 90" stroke="#2c3e50" stroke-width="2" fill="none" marker-end="url(#arrowDark)"/>
             <rect x="180" y="75" width="60" height="30" rx="5" fill="#e74c3c" stroke="#c0392b" stroke-width="2"/>
-            <text x="210" y="95" font-size="11" text-anchor="middle" fill="white">🔑 개인</text>
+            <text x="210" y="95" font-size="11" text-anchor="middle" fill="white">🔑 개인키</text>
 
-            <text x="100" y="150" font-size="14" font-weight="bold" fill="#2c3e50">2단계. 자물쇠 공유</text>
+            <!-- 공개키 배포 -->
+            <text x="100" y="150" font-size="14" font-weight="bold" fill="#2c3e50">2단계. 자물쇠 배포</text>
             <circle cx="100" cy="200" r="30" fill="#2ecc71"/>
             <text x="100" y="205" font-size="12" text-anchor="middle" fill="white">수신자</text>
-            <path d="M 130 200 L 220 200" stroke="#f39c12" stroke-width="3" fill="none" marker-end="url(#aO2)"/>
+            <path d="M 130 200 L 220 200" stroke="#f39c12" stroke-width="3" fill="none" marker-end="url(#arrowOrange)"/>
             <rect x="225" y="185" width="60" height="30" rx="5" fill="#f39c12" stroke="#d68910" stroke-width="2"/>
-            <text x="255" y="205" font-size="11" text-anchor="middle" fill="white">🔓 공개</text>
-            <text x="360" y="205" font-size="10" fill="#7f8c8d">→ 발신자에게 전송</text>
+            <text x="255" y="205" font-size="11" text-anchor="middle" fill="white">🔓 공개키</text>
+            <text x="350" y="205" font-size="10" fill="#7f8c8d">발신자에게 전송</text>
 
+            <!-- 발신자가 파일 잠금 -->
             <text x="550" y="30" font-size="14" font-weight="bold" fill="#2c3e50">3단계. 잠금 (발신자)</text>
             <circle cx="550" cy="80" r="30" fill="#3498db"/>
             <text x="550" y="85" font-size="12" text-anchor="middle" fill="white">발신자</text>
             <rect x="625" y="60" width="30" height="30" rx="3" fill="#95a5a6" stroke="#7f8c8d" stroke-width="2"/>
             <text x="640" y="80" font-size="14" text-anchor="middle" fill="white">📄</text>
             <text x="640" y="100" font-size="9" text-anchor="middle" fill="#2c3e50">파일</text>
-            <path d="M 590 85 L 625 85" stroke="#2c3e50" stroke-width="2" fill="none" marker-end="url(#aD2)"/>
+            <path d="M 590 85 L 625 85" stroke="#2c3e50" stroke-width="2" fill="none" marker-end="url(#arrowDark)"/>
             <rect x="680" y="60" width="40" height="40" rx="3" fill="#f39c12" stroke="#d68910" stroke-width="2"/>
-            <text x="700" y="92" font-size="20" text-anchor="middle" fill="white">🔐</text>
+            <text x="700" y="92" font-size="20" text-anchor="middle" fill="white">️️🔒</text>
 
-            <text x="550" y="150" font-size="14" font-weight="bold" fill="#2c3e50">4단계. 개인 키로 잠금 해제 (수신자)</text>
+            <!-- 수신자가 개인키로 해제 -->
+            <text x="550" y="150" font-size="14" font-weight="bold" fill="#2c3e50">4단계. 개인키로 열기 (수신자)</text>
             <circle cx="550" cy="200" r="30" fill="#2ecc71"/>
             <text x="550" y="205" font-size="12" text-anchor="middle" fill="white">수신자</text>
-            <rect x="625" y="180" width="40" height="40" rx="3" fill="#f39c12" stroke="#d68910" stroke-width="2"/>
-            <text x="645" y="212" font-size="20" text-anchor="middle" fill="white">🔐</text>
-            <path d="M 590 200 L 625 200" stroke="#2c3e50" stroke-width="2" fill="none" marker-end="url(#aD2)"/>
+            <rect x="625" y="180" width="40" height="40" rx="3" fill="#e74c3c" stroke="#c0392b" stroke-width="2"/>
+            <text x="645" y="212" font-size="20" text-anchor="middle" fill="white">🔑</text>
+            <path d="M 590 200 L 625 200" stroke="#2c3e50" stroke-width="2" fill="none" marker-end="url(#arrowDark)"/>
             <rect x="680" y="180" width="30" height="30" rx="3" fill="#95a5a6" stroke="#7f8c8d" stroke-width="2"/>
-            <text x="695" y="200" font-size="14" text-anchor="middle" fill="white">📄</text>
+            <text x="695" y="200" font-size="14" text-anchor="middle" fill="white">📄️🔓</text>
             <text x="695" y="220" font-size="9" text-anchor="middle" fill="#2c3e50">열림</text>
             <defs>
-                <marker id="aD2" markerWidth="10" markerHeight="10" refX="10" refY="3" orient="auto" markerUnits="strokeWidth"><path d="M0,0 L0,6 L9,3 z" fill="#2c3e50"/></marker>
-                <marker id="aO2" markerWidth="10" markerHeight="10" refX="10" refY="3" orient="auto" markerUnits="strokeWidth"><path d="M0,0 L0,6 L9,3 z" fill="#f39c12"/></marker>
+                <marker id="arrowDark" markerWidth="10" markerHeight="10" refX="10" refY="3" orient="auto" markerUnits="strokeWidth"><path d="M0,0 L0,6 L9,3 z" fill="#2c3e50"/></marker>
+                <marker id="arrowOrange" markerWidth="10" markerHeight="10" refX="10" refY="3" orient="auto" markerUnits="strokeWidth"><path d="M0,0 L0,6 L9,3 z" fill="#f39c12"/></marker>
             </defs>
         </svg>
         <figcaption style="font-size:0.9em;color:#7f8c8d;margin-top:15px;">그림 2: 공개 키 암호화 단계별 설명</figcaption>

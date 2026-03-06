@@ -71,6 +71,12 @@
   "status.encrypted": "Datei wurde verschlüsselt!({0})",
   "status.decrypting": "Entschlüsselung läuft...",
   "status.decrypted": "Datei wurde entschlüsselt!({0})",
+  "status.cancelled": "Vom Benutzer abgebrochen",
+
+  "warning.largeFile.title": "Große Datei",
+  "warning.largeFile.message": "Diese Datei ist {0} MB groß. Die Verarbeitung kann lange dauern. Fortfahren?",
+  "btn.continue": "Fortfahren",
+  "btn.cancel": "Abbrechen",
 
   "error.selectBoth.encrypt": "Bitte wählen Sie sowohl den öffentlichen Schlüssel als auch die Datei",
   "error.selectBoth.decrypt": "Bitte wählen Sie sowohl den privaten Schlüssel als auch die .encrypted-Datei",

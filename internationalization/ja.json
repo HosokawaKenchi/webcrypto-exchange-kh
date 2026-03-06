@@ -71,6 +71,12 @@
   "status.encrypted": "ファイルを暗号化しました！({0})",
   "status.decrypting": "復号処理中...",
   "status.decrypted": "ファイルを復号しました！({0})",
+  "status.cancelled": "キャンセルされました",
+
+  "warning.largeFile.title": "大きなファイルです",
+  "warning.largeFile.message": "このファイルは {0} MB です。処理に時間がかかる場合があります。続行しますか？",
+  "btn.continue": "続行",
+  "btn.cancel": "キャンセル",
 
   "error.selectBoth.encrypt": "公開鍵とファイルの両方を選択してください",
   "error.selectBoth.decrypt": "秘密鍵と.encryptedファイルの両方を選択してください",

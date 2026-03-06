@@ -249,6 +249,16 @@ async function encryptFile() {
             throw new Error(I18N.t('error.selectBoth.encrypt'));
         }
 
+        // If file is large, ask user to confirm (threshold: 50 MB)
+        const LARGE_FILE_THRESHOLD = 50 * 1024 * 1024; // 50 MB
+        if (fileToEncrypt.size >= LARGE_FILE_THRESHOLD) {
+            const ok = await showLargeFileConfirm(fileToEncrypt.size);
+            if (!ok) {
+                showStatus('encryptStatus', 'info', I18N.t('status.cancelled'));
+                return;
+            }
+        }
+
         let pubKey;
         let publicKeyFileSelected = publicKeyFileInput.files[0];
 
@@ -273,6 +283,7 @@ async function encryptFile() {
         }
 
         showStatus('encryptStatus', 'info', I18N.t('status.encrypting'));
+        showThrobber(I18N.t('status.encrypting'));
 
         // Read file to encrypt
         const fileBuffer = await readFileAsArrayBuffer(fileToEncrypt);
@@ -327,6 +338,8 @@ async function encryptFile() {
     } catch (error) {
         console.error('Encryption error:', error);
         showStatus('encryptStatus', 'error', I18N.t('error.generic', error.message || error));
+    } finally {
+        hideThrobber();
     }
 }
 
@@ -339,6 +352,16 @@ async function decryptFile() {
 
         if (!fileToDecrypt) {
             throw new Error(I18N.t('error.selectBoth.decrypt'));
+        }
+
+        // If file is large, ask user to confirm (threshold: 50 MB)
+        const LARGE_FILE_THRESHOLD = 50 * 1024 * 1024; // 50 MB
+        if (fileToDecrypt.size >= LARGE_FILE_THRESHOLD) {
+            const ok = await showLargeFileConfirm(fileToDecrypt.size);
+            if (!ok) {
+                showStatus('decryptStatus', 'info', I18N.t('status.cancelled'));
+                return;
+            }
         }
 
         let privKey;
@@ -365,6 +388,7 @@ async function decryptFile() {
         }
 
         showStatus('decryptStatus', 'info', I18N.t('status.decrypting'));
+        showThrobber(I18N.t('status.decrypting'));
 
         // Read encrypted package
         const encryptedJson = await readFileAsText(fileToDecrypt);
@@ -433,6 +457,8 @@ async function decryptFile() {
     } catch (error) {
         console.error('Decryption error:', error);
         showStatus('decryptStatus', 'error', I18N.t('error.generic', error.message || error));
+    } finally {
+        hideThrobber();
     }
 }
 
@@ -447,6 +473,60 @@ function downloadFile(content, filename, contentType) {
     a.click();
     document.body.removeChild(a);
     URL.revokeObjectURL(url);
+}
+
+// Throbber (processing overlay) utilities
+function showThrobber(text) {
+    const th = document.getElementById('global-throbber');
+    if (!th) return;
+    const txt = th.querySelector('.throbber-text');
+    if (txt && text) txt.textContent = text;
+    th.setAttribute('aria-hidden', 'false');
+    // disable main action buttons to avoid duplicate requests
+    try { document.getElementById('encryptFileBtn').disabled = true; } catch (e) {}
+    try { document.getElementById('decryptFileBtn').disabled = true; } catch (e) {}
+}
+
+function hideThrobber() {
+    const th = document.getElementById('global-throbber');
+    if (!th) return;
+    th.setAttribute('aria-hidden', 'true');
+    try { document.getElementById('encryptFileBtn').disabled = false; } catch (e) {}
+    try { document.getElementById('decryptFileBtn').disabled = false; } catch (e) {}
+}
+
+// Large-file confirmation modal
+function showLargeFileConfirm(bytes) {
+    return new Promise(resolve => {
+        const modal = document.getElementById('large-file-modal');
+        if (!modal) return resolve(true);
+        const titleEl = document.getElementById('large-file-title');
+        const msgEl = document.getElementById('large-file-message');
+        const btnContinue = document.getElementById('large-file-continue');
+        const btnCancel = document.getElementById('large-file-cancel');
+
+        const mb = (bytes / (1024 * 1024)).toFixed(1);
+        if (titleEl) titleEl.textContent = I18N.t('warning.largeFile.title');
+        if (msgEl) msgEl.innerHTML = I18N.t('warning.largeFile.message', mb);
+        if (btnContinue) btnContinue.textContent = I18N.t('btn.continue');
+        if (btnCancel) btnCancel.textContent = I18N.t('btn.cancel');
+
+        modal.style.display = 'flex';
+        modal.setAttribute('aria-hidden', 'false');
+
+        function cleanup() {
+            modal.style.display = 'none';
+            modal.setAttribute('aria-hidden', 'true');
+            btnContinue.removeEventListener('click', onContinue);
+            btnCancel.removeEventListener('click', onCancel);
+        }
+
+        function onContinue() { cleanup(); resolve(true); }
+        function onCancel() { cleanup(); resolve(false); }
+
+        btnContinue.addEventListener('click', onContinue);
+        btnCancel.addEventListener('click', onCancel);
+    });
 }
 
 // Utility function to show status messages

@@ -69,6 +69,12 @@
   "status.encrypted": "File encrypted successfully! ({0})",
   "status.decrypting": "Decrypting...",
   "status.decrypted": "File decrypted successfully! ({0})",
+  "status.cancelled": "Cancelled by user",
+
+  "warning.largeFile.title": "Large file",
+  "warning.largeFile.message": "This file is {0} MB. Processing may take a long time. Continue?",
+  "btn.continue": "Continue",
+  "btn.cancel": "Cancel",
 
   "error.selectBoth.encrypt": "Please select both a public key and a file to encrypt",
   "error.selectBoth.decrypt": "Please select both a private key and a .encrypted file",

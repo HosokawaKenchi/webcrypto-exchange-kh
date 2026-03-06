@@ -2,7 +2,7 @@
 // Service Worker for WebCrypto Exchange PWA
 // Enables offline functionality and caching
 
-const CACHE_NAME = 'webcrypto-exchange-v1';
+const CACHE_NAME = 'webcrypto-exchange-v1.1';
 const ASSETS_TO_CACHE = [
   '/',
   '/index.html',
@@ -31,7 +31,7 @@ const ASSETS_TO_CACHE = [
   '/internationalization/description.zh.html'
 ];
 
-const API_CACHE_NAME = 'webcrypto-exchange-api-v1';
+const API_CACHE_NAME = 'webcrypto-exchange-api-v1.1';
 
 // Install event - cache assets
 self.addEventListener('install', event => {
@@ -139,7 +139,10 @@ self.addEventListener('fetch', event => {
 
 // Handle messages from clients
 self.addEventListener('message', event => {
-  if (event.data && event.data.action === 'skipWaiting') {
+  if (!event.data) return;
+  const action = event.data.action || event.data.type;
+  if (action === 'skipWaiting' || action === 'SKIP_WAITING') {
+    console.log('[Service Worker] Received skipWaiting message, activating new SW');
     self.skipWaiting();
   }
 });

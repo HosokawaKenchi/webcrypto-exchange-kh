@@ -58,7 +58,6 @@
             text-align: justify;
         }
         strong {
-            color: #e74c3c;
             font-weight: bold;
         }
         ul, ol {
@@ -167,7 +166,7 @@
         <h1>メール添付ファイルの安全な暗号化方法</h1>
         
         <div class="intro">
-            <p>パスワード付きZIPファイルを送り、その後にパスワードを別メールで送る手法は、日本では古くから「PPAP（Password付きZIPファイルを送ります、Passwordを送ります、Aん号化（暗号化）協議会、Protocol）」と呼ばれてきました。</p>
+            <p>パスワード付きZIPファイルを送り、その後にパスワードを別メールで送る手法は、日本では古くから「PPAP（Password付きZIPファイルを送ります、Passwordを送ります、Aん号化（暗号化）、Protocol）」と呼ばれてきました。</p>
             <p>しかし現在、多くの公的機関、企業では、この手法は<strong>「セキュリティ効果がほぼなく、むしろリスクを高める」</strong>として廃止が進んでいます。</p>
         </div>
 
@@ -217,7 +216,7 @@
         </figure>
 
         <h3>① 暗号化ファイルもパスワードも "同じ経路" で盗まれる</h3>
-        <p>一番の理由は、<strong>「泥棒が同じ道を通っている」</strong>ことに気づいていない点です。</p>
+        <p>一番の理由は、<strong>「泥棒は鍵も錠も全部盗むことができる」</strong>ことに気づいていない点です。</p>
         <ul>
             <li><strong>1通目のメール（ファイル）：</strong> 攻撃者に盗聴されたとします。</li>
             <li><strong>2通目のメール（パスワード）：</strong> 同じネットワーク、同じ設定で送られているため、同様に盗聴される可能性が極めて高いです。</li>
@@ -256,7 +255,7 @@
         <h2>初心者向けまとめ：なぜ危険なのか</h2>
         <ol>
             <li><strong>暗号化ファイルとパスワードが同じ経路で盗まれるため安全ではない。</strong></li>
-            <li><strong>ウイルスチェックができず、マルウェア拡散の手法として悪用されている。</strong></li>
+            <li><strong>ZIPの暗号方式が弱く、短いパスワードは数分で破られる。</strong></li>
             <li><strong>誤送信時に"鍵も一緒に送ってしまう"ので、情報漏えい防止策として機能しない。</strong></li>
         </ol>
 
@@ -287,7 +286,7 @@
                 <text x="210" y="75" font-size="11" text-anchor="middle" fill="white">🔓公開鍵</text>
                 <path d="M 130 90 L 180 90" stroke="#2c3e50" stroke-width="2" fill="none" marker-end="url(#arrowDark)"/>
                 <rect x="180" y="75" width="60" height="30" rx="5" fill="#e74c3c" stroke="#c0392b" stroke-width="2"/>
-                <text x="210" y="95" font-size="11" text-anchor="middle" fill="white">🔑秘密鍵</text>
+                <text x="210" y="95" font-size="11" text-anchor="middle" fill="white">🗝秘密鍵</text>
                 
                 <!-- Distribute public key -->
                 <text x="100" y="150" font-size="14" font-weight="bold" fill="#2c3e50">Step 2. 南京錠を配る</text>
@@ -310,20 +309,20 @@
                 <path d="M 590 85 L 625 85" stroke="#2c3e50" stroke-width="2" fill="none" marker-end="url(#arrowDark)"/>
                 
                 <rect x="680" y="60" width="40" height="40" rx="3" fill="#f39c12" stroke="#d68910" stroke-width="2"/>
-                <text x="700" y="92" font-size="20" text-anchor="middle" fill="white">🔐</text>
+                <text x="700" y="92" font-size="20" text-anchor="middle" fill="white">️🔒</text>
                 
                 <!-- Receiver decrypts -->
                 <text x="550" y="150" font-size="14" font-weight="bold" fill="#2c3e50">Step 4. 自分の鍵で開ける（受信者）</text>
                 <circle cx="550" cy="200" r="30" fill="#2ecc71"/>
                 <text x="550" y="205" font-size="12" text-anchor="middle" fill="white">受信者</text>
                 
-                <rect x="625" y="180" width="40" height="40" rx="3" fill="#f39c12" stroke="#d68910" stroke-width="2"/>
-                <text x="645" y="212" font-size="20" text-anchor="middle" fill="white">🔐</text>
+                <rect x="625" y="180" width="40" height="40" rx="3" fill="#e74c3c" stroke="#c0392b" stroke-width="2"/>
+                <text x="645" y="212" font-size="20" text-anchor="middle" fill="white">🗝</text>
                 
                 <path d="M 590 200 L 625 200" stroke="#2c3e50" stroke-width="2" fill="none" marker-end="url(#arrowDark)"/>
                 
                 <rect x="680" y="180" width="30" height="30" rx="3" fill="#95a5a6" stroke="#7f8c8d" stroke-width="2"/>
-                <text x="695" y="200" font-size="14" text-anchor="middle" fill="white">📄</text>
+                <text x="695" y="200" font-size="14" text-anchor="middle" fill="white">📄️🔒</text>
                 <text x="695" y="220" font-size="9" text-anchor="middle" fill="#2c3e50">開封</text>
                 
                 <defs>

@@ -69,6 +69,12 @@
   "status.encrypted": "¡Archivo cifrado correctamente! ({0})",
   "status.decrypting": "Descifrando...",
   "status.decrypted": "¡Archivo descifrado correctamente! ({0})",
+  "status.cancelled": "Cancelado por el usuario",
+
+  "warning.largeFile.title": "Archivo grande",
+  "warning.largeFile.message": "Este archivo tiene {0} MB. El procesamiento puede tardar mucho. ¿Continuar?",
+  "btn.continue": "Continuar",
+  "btn.cancel": "Cancelar",
 
   "error.selectBoth.encrypt": "Por favor, seleccione tanto una clave pública como un archivo para cifrar",
   "error.selectBoth.decrypt": "Por favor, seleccione tanto una clave privada como un archivo .encrypted",

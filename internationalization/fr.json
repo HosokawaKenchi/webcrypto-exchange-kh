@@ -69,6 +69,12 @@
   "status.encrypted": "Fichier chiffré avec succès ! ({0})",
   "status.decrypting": "Déchiffrement...",
   "status.decrypted": "Fichier déchiffré avec succès ! ({0})",
+  "status.cancelled": "Annulé par l'utilisateur",
+
+  "warning.largeFile.title": "Fichier volumineux",
+  "warning.largeFile.message": "Ce fichier fait {0} Mo. Le traitement peut prendre du temps. Continuer ?",
+  "btn.continue": "Continuer",
+  "btn.cancel": "Annuler",
 
   "error.selectBoth.encrypt": "Veuillez sélectionner à la fois une clé publique et un fichier à chiffrer",
   "error.selectBoth.decrypt": "Veuillez sélectionner à la fois une clé privée et un fichier .encrypted",

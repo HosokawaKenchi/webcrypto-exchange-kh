@@ -69,6 +69,12 @@
   "status.encrypted": "文件加密成功！({0})",
   "status.decrypting": "解密中...",
   "status.decrypted": "文件解密成功！({0})",
+  "status.cancelled": "已被用户取消",
+
+  "warning.largeFile.title": "大文件",
+  "warning.largeFile.message": "此文件大小为 {0} MB。处理可能需要较长时间。要继续吗？",
+  "btn.continue": "继续",
+  "btn.cancel": "取消",
 
   "error.selectBoth.encrypt": "请同时选择公钥和要加密的文件",
   "error.selectBoth.decrypt": "请同时选择私钥和.encrypted文件",

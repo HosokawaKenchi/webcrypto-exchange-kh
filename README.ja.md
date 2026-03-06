@@ -2,6 +2,9 @@
 
 ブラウザ上で安全にファイル暗号化・復号を行うWebアプリケーション
 
+**公開URL：<https://hosokawakenchi.github.io/webcrypto-exchange-kh/>**
+
+
 ## 概要
 
 - このアプリは静的Webページとして実装されています。
