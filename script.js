@@ -349,4 +349,24 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('downloadPrivateKeyBtn').addEventListener('click', downloadPrivateKey);
     document.getElementById('encryptFileBtn').addEventListener('click', encryptFile);
     document.getElementById('decryptFileBtn').addEventListener('click', decryptFile);
+    
+    // Description panel toggle
+    const descriptionBtn = document.getElementById('descriptionBtn');
+    const descriptionPanel = document.getElementById('descriptionPanel');
+    const closeDescriptionBtn = document.getElementById('closeDescriptionBtn');
+    
+    descriptionBtn.addEventListener('click', () => {
+        descriptionPanel.classList.add('active');
+    });
+    
+    closeDescriptionBtn.addEventListener('click', () => {
+        descriptionPanel.classList.remove('active');
+    });
+    
+    // Close panel when clicking outside the content area
+    descriptionPanel.addEventListener('click', (e) => {
+        if (e.target === descriptionPanel) {
+            descriptionPanel.classList.remove('active');
+        }
+    });
 });

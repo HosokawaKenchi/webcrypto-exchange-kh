@@ -3,14 +3,77 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>WebCrypto Exchange KH</title>
+    <title>WebCrypto Exchange</title>
     <link rel="stylesheet" href="style.css">
+    <style>
+        #descriptionBtn {
+            margin-top: 15px;
+            background-color: #16a085;
+            color: white;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 5px;
+            font-size: 14px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+        #descriptionBtn:hover {
+            background-color: #138870;
+        }
+        #descriptionPanel {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+            overflow-y: auto;
+        }
+        #descriptionPanel.active {
+            display: flex;
+        }
+        #descriptionPanelContent {
+            background: white;
+            border-radius: 10px;
+            /* ウィンドウの約80%を占める */
+            width: 80vw;
+            height: 80vh;
+            max-width: 1200px;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 0 10px 50px rgba(0, 0, 0, 0.3);
+        }
+        #closeDescriptionBtn {
+            background: #e74c3c;
+            color: white;
+            border: none;
+            padding: 8px 14px;
+            font-size: 14px;
+            cursor: pointer;
+            align-self: flex-end;
+            margin: 8px;
+            border-radius: 6px;
+        }
+        #closeDescriptionBtn:hover {
+            background: #c0392b;
+        }
+        #descriptionIframe {
+            flex: 1;
+            border: none;
+            width: 100%;
+            height: calc(100% - 56px);
+        }
+    </style>
 </head>
 <body>
     <div class="container">
-        <h1>WebCrypto Exchange KH</h1>
+        <h1>添付ファイル用の安全暗号化ツール</h1>
         <p class="subtitle">ブラウザ上での安全なファイル暗号化・復号ツール</p>
-
+        <p>パスワード付きZIPファイルを送り、その後にパスワードを別メールで送る手法「PPAP」は危険です。このツールは、それに代わって簡易的ではありますが、安全にファイルを暗号化・復号する方法を提供します。暗号化zipを作るアプリを持っていない方にもおすすめです。</p>
+        
+        <p style="text-align: center;"><button id="descriptionBtn" class="btn">📖 メール添付ファイルのパスワード付き暗号化の危険性と、安全な添付ファイルの送信方法とは？</button></p>
         <!-- キーペア生成セクション -->
         <section class="section">
             <h2>1. キーペア生成</h2>
@@ -66,20 +129,8 @@
         <!-- 情報セクション -->
         <section class="section info-section">
             <h2>使用方法</h2>
-            
-            <h3>公開鍵と秘密鍵の仕組み</h3>
-            <p>公開鍵暗号は、2つの異なるキーを使用する仕組みです。<strong>公開鍵</strong>は誰にでも公開できるキーで、データの暗号化に使用します。<strong>秘密鍵</strong>は厳重に保管する必要があるキーで、暗号化されたデータの復号に使用します。</p>
-            
-            <h4>ハイブリッド暗号化の仕組み</h4>
-            <p>このツールは<strong>ハイブリッド暗号化</strong>方式を採用しています：</p>
-            <ol>
-                <li><strong>AES-256-GCM暗号化</strong>：大容量ファイルを高速に暗号化するため、ランダムに生成したAES鍵を使用してファイルを暗号化します</li>
-                <li><strong>RSA-OAEP鍵暗号化</strong>：生成したAES鍵を秘密鍵の持ち主のみが復号できるよう、公開鍵でRSA暗号化します</li>
-            </ol>
-            <p>この仕組みにより、フォトグラフ、動画、圧縮ファイルなど、<strong>サイズ制限なく安全にファイルを暗号化</strong>できます。</p>
-            
             <p>このツールでは、受取人が鍵ペアを生成し、公開鍵のみを送り手に送信します。送り手は受け取った公開鍵でファイルを暗号化し、受取人は秘密鍵でそれを復号します。</p>
-            
+
             <h3>ステップバイステップ手順</h3>
             <p><strong>受取人の作業：</strong></p>
             <ol>
@@ -113,7 +164,17 @@
                 <li>秘密鍵は安全な場所に保管してください</li>
                 <li>複数のコンピュータで使用する場合、秘密鍵を安全に移動させてください</li>
             </ul>
+            <h3>ライセンス</h3>
+            <p>このプロジェクトはMITライセンスの下で配布されています。詳しくはリポジトリの <a href="LICENSE">LICENSE</a> ファイルを参照してください。</p>
         </section>
+    </div>
+
+    <!-- 説明パネル -->
+    <div id="descriptionPanel">
+        <div id="descriptionPanelContent">
+            <button id="closeDescriptionBtn">✕ 閉じる</button>
+            <iframe id="descriptionIframe" src="description.html"></iframe>
+        </div>
     </div>
 
     <script src="script.js"></script>
