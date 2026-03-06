@@ -47,7 +47,7 @@
         <!-- ファイル復号セクション -->
         <section class="section">
             <h2>3. ファイル復号（秘密鍵使用）</h2>
-            <p>.wcxファイルを選択し、秘密鍵で復号します</p>
+            <p>.encryptedファイルを選択し、秘密鍵で復号します</p>
             
             <div class="form-group">
                 <label for="privateKeyFile">秘密鍵ファイルを選択：</label>
@@ -55,8 +55,8 @@
             </div>
             
             <div class="form-group">
-                <label for="fileToDecrypt">復号するファイル（.wcx）を選択：</label>
-                <input type="file" id="fileToDecrypt" accept=".wcx" class="file-input">
+                <label for="fileToDecrypt">復号するファイル（.encrypted）を選択：</label>
+                <input type="file" id="fileToDecrypt" accept=".encrypted,application/json" class="file-input">
             </div>
             
             <button id="decryptFileBtn" class="btn btn-primary">ファイルを復号</button>
@@ -94,14 +94,14 @@
                 <li>受け取った公開鍵ファイル（<code>public_key.pub</code>）を「公開鍵ファイルを選択」で選択します</li>
                 <li>暗号化したいファイルを「暗号化するファイルを選択」で選択します</li>
                 <li>「ファイルを暗号化」ボタンをクリックします</li>
-                <li>暗号化されたファイル（<code>ファイル名.wcx</code>）が自動的にダウンロードされます</li>
+                <li>暗号化されたファイル（<code>ファイル名.encrypted</code>）が自動的にダウンロードされます</li>
                 <li>暗号化ファイルを受取人に送付します</li>
             </ol>
             
             <p><strong>受取人の復号作業：</strong></p>
             <ol>
                 <li>「秘密鍵ファイルを選択」で、保管していた<code>private_key.pem</code>を選択します</li>
-                <li>「復号するファイル（.wcx）を選択」で、受け取った暗号化ファイルを選択します</li>
+                <li>「復号するファイル（.encrypted）を選択」で、受け取った暗号化ファイルを選択します</li>
                 <li>「ファイルを復号」ボタンをクリックします</li>
                 <li>復号されたファイルが自動的にダウンロードされます</li>
             </ol>

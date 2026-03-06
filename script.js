@@ -211,8 +211,8 @@ async function encryptFile() {
             aesKeyBytes
         );
 
-        // Create WCX file (JSON format containing encrypted data, encrypted AES key, and IV)
-        const wcxContent = {
+        // Create encrypted package (JSON format containing encrypted data, encrypted AES key, and IV)
+        const encryptedPackage = {
             version: '2.0',
             algorithm: 'AES-256-GCM-RSA-OAEP',
             hash: 'SHA-256',
@@ -222,10 +222,10 @@ async function encryptFile() {
             encryptedData: arrayBufferToBase64(encryptedFile)
         };
 
-        const wcxJson = JSON.stringify(wcxContent, null, 2);
-        downloadFile(wcxJson, `${fileToEncrypt.name}.wcx`, 'application/json');
+        const encryptedJson = JSON.stringify(encryptedPackage, null, 2);
+        downloadFile(encryptedJson, `${fileToEncrypt.name}.encrypted`, 'application/json');
 
-        showStatus('encryptStatus', 'success', `ファイルを暗号化しました！(${fileToEncrypt.name}.wcx)`);
+        showStatus('encryptStatus', 'success', `ファイルを暗号化しました！(${fileToEncrypt.name}.encrypted)`);
         document.getElementById('publicKeyFile').value = '';
         document.getElementById('fileToEncrypt').value = '';
 
@@ -242,7 +242,7 @@ async function decryptFile() {
         const fileToDecrypt = document.getElementById('fileToDecrypt').files[0];
 
         if (!privateKeyFile || !fileToDecrypt) {
-            throw new Error('秘密鍵と.wcxファイルの両方を選択してください');
+            throw new Error('秘密鍵と.encryptedファイルの両方を選択してください');
         }
 
         showStatus('decryptStatus', 'info', '復号処理中...');
@@ -251,17 +251,17 @@ async function decryptFile() {
         const pemContent = await readFileAsText(privateKeyFile);
         const privKey = await importPrivateKeyFromPEM(pemContent);
 
-        // Read WCX file
-        const wcxContent = await readFileAsText(fileToDecrypt);
-        const wcxData = JSON.parse(wcxContent);
+        // Read encrypted package
+        const encryptedJson = await readFileAsText(fileToDecrypt);
+        const encryptedData = JSON.parse(encryptedJson);
 
         // Handle both old (v1.0) and new (v2.0) formats
         let decryptedData;
 
-        if (wcxData.version === '2.0' && wcxData.algorithm === 'AES-256-GCM-RSA-OAEP') {
+        if (encryptedData.version === '2.0' && encryptedData.algorithm === 'AES-256-GCM-RSA-OAEP') {
             // New hybrid encryption format
             // Decrypt AES key with RSA-OAEP
-            const encryptedAesKeyBuffer = base64ToArrayBuffer(wcxData.encryptedAesKey);
+            const encryptedAesKeyBuffer = base64ToArrayBuffer(encryptedData.encryptedAesKey);
             const aesKeyBytes = await window.crypto.subtle.decrypt(
                 { name: 'RSA-OAEP' },
                 privKey,
@@ -278,28 +278,28 @@ async function decryptFile() {
             );
 
             // Decrypt file with AES key
-            const encryptedBuffer = base64ToArrayBuffer(wcxData.encryptedData);
-            const iv = base64ToArrayBuffer(wcxData.iv);
+            const encryptedBuffer = base64ToArrayBuffer(encryptedData.encryptedData);
+            const iv = base64ToArrayBuffer(encryptedData.iv);
 
             decryptedData = await window.crypto.subtle.decrypt(
                 { name: 'AES-GCM', iv: new Uint8Array(iv) },
                 aesKey,
                 encryptedBuffer
             );
-        } else if (wcxData.version === '1.0' && wcxData.algorithm === 'RSA-OAEP') {
+        } else if (encryptedData.version === '1.0' && encryptedData.algorithm === 'RSA-OAEP') {
             // Old format: direct RSA-OAEP encryption (backward compatibility)
-            const encryptedBuffer = base64ToArrayBuffer(wcxData.encryptedData);
+            const encryptedBuffer = base64ToArrayBuffer(encryptedData.encryptedData);
             decryptedData = await window.crypto.subtle.decrypt(
                 { name: 'RSA-OAEP' },
                 privKey,
                 encryptedBuffer
             );
         } else {
-            throw new Error(`サポートされていないフォーマット: version=${wcxData.version}, algorithm=${wcxData.algorithm}`);
+            throw new Error(`サポートされていないフォーマット: version=${encryptedData.version}, algorithm=${encryptedData.algorithm}`);
         }
 
         // Download decrypted file
-        const originalFilename = wcxData.originalFilename || 'decrypted_file';
+        const originalFilename = encryptedData.originalFilename || 'decrypted_file';
         const decryptedBlob = new Blob([new Uint8Array(decryptedData)]);
         
         const url = URL.createObjectURL(decryptedBlob);
