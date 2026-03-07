@@ -2,7 +2,7 @@
 // Service Worker for WebCrypto Exchange PWA
 // Enables offline functionality and caching
 
-const CACHE_NAME = 'webcrypto-exchange-v1.1';
+const CACHE_NAME = 'webcrypto-exchange-v1.1.1';
 const ASSETS_TO_CACHE = [
   '/',
   '/index.html',

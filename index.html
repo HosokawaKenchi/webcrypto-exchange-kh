@@ -340,11 +340,6 @@
                     // Check for updates on load
                     registration.update();
                     
-                    // Check for updates periodically (every 60 seconds)
-                    setInterval(() => {
-                        registration.update();
-                    }, 60000);
-                    
                     // Check if there's already a waiting SW
                     if (registration.waiting) {
                         showUpdateBanner(registration);
