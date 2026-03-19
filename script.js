@@ -315,13 +315,22 @@ async function encryptFile() {
         let pubKey;
         let publicKeyFileSelected = publicKeyFileInput.files[0];
 
-        // Try to use selected key from history first
+        // Try to use selected key from history or imported keys
         if (publicKeySelectInput && publicKeySelectInput.value) {
-            const keyEntry = getKeyHistory().find(
-                entry => entry.id === parseInt(publicKeySelectInput.value)
-            );
-            if (keyEntry) {
-                pubKey = await importPublicKeyFromPEM(keyEntry.publicKeyPem);
+            const sel = publicKeySelectInput.value;
+            if (sel.startsWith && sel.startsWith('import:')) {
+                const id = parseInt(sel.split(':')[1]);
+                const importedEntry = getImportedPublicKeyHistory().find(e => e.id === id);
+                if (importedEntry) {
+                    pubKey = await importPublicKeyFromPEM(importedEntry.publicKeyPem);
+                }
+            } else {
+                const keyEntry = getKeyHistory().find(
+                    entry => entry.id === parseInt(sel)
+                );
+                if (keyEntry) {
+                    pubKey = await importPublicKeyFromPEM(keyEntry.publicKeyPem);
+                }
             }
         }
 
@@ -716,6 +725,7 @@ function updateKeyHistoryDisplay() {
 // Update key selector dropdowns
 function updateKeySelectors() {
     const history = getKeyHistory();
+    const imported = getImportedPublicKeyHistory();
     
     const publicKeySelect = document.getElementById('publicKeySelect');
     const privateKeySelect = document.getElementById('privateKeySelect');
@@ -727,17 +737,33 @@ function updateKeySelectors() {
     
     let publicHtml = defaultPublicHtml;
     let privateHtml = defaultPrivateHtml;
-    
-    history.forEach((entry) => {
-        const date = entry.date;
-        publicHtml += `<option value="${entry.id}">${I18N.t('select.keyDate')}: ${date}</option>`;
-        privateHtml += `<option value="${entry.id}">${I18N.t('select.keyDate')}: ${date}</option>`;
-    });
-    
+
+    // Add generated key history (ordinary keys)
+    if (history.length > 0) {
+        publicHtml += `<optgroup label="${I18N.t('select.generatedKeys') || '生成済み鍵'}">`;
+        history.forEach((entry) => {
+            const date = entry.date;
+            publicHtml += `<option value="${entry.id}">${I18N.t('select.keyDate')}: ${date}</option>`;
+            privateHtml += `<option value="${entry.id}">${I18N.t('select.keyDate')}: ${date}</option>`;
+        });
+        publicHtml += `</optgroup>`;
+    }
+
+    // Add imported public keys (prefix value to avoid id collision)
+    if (imported.length > 0) {
+        publicHtml += `<optgroup label="${I18N.t('select.importedKeys') || 'インポート済み公開鍵'}">`;
+        imported.forEach((entry) => {
+            const date = entry.date;
+            // Use a prefixed value so we can distinguish imported keys later
+            publicHtml += `<option value="import:${entry.id}">${I18N.t('select.keyDate')}: ${date} (import)</option>`;
+        });
+        publicHtml += `</optgroup>`;
+    }
+
     publicKeySelect.innerHTML = publicHtml;
     privateKeySelect.innerHTML = privateHtml;
     
-    // Default: latest key for decryption
+    // Default: latest key for decryption (latest generated private key)
     if (history.length > 0) {
         const latestId = history[history.length - 1].id;
         privateKeySelect.value = latestId;

@@ -2,7 +2,7 @@
 // Service Worker for WebCrypto Exchange PWA
 // Enables offline functionality and caching
 
-const CACHE_NAME = 'webcrypto-exchange-v1.1.2';
+const CACHE_NAME = 'webcrypto-exchange-v1.1.3';
 const ASSETS_TO_CACHE = [
   '/',
   '/index.html',
@@ -31,7 +31,7 @@ const ASSETS_TO_CACHE = [
   '/internationalization/description.zh.html'
 ];
 
-const API_CACHE_NAME = 'webcrypto-exchange-api-v1.1.2';
+const API_CACHE_NAME = 'webcrypto-exchange-api-v1.1.3';
 
 // Install event - cache assets
 self.addEventListener('install', event => {
