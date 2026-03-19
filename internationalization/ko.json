@@ -94,5 +94,12 @@
   "select.keyDate": "생성됨",
 
   "confirm.deleteKey": "이 키 쌍을 삭제하시겠습니까?",
-  "confirm.clearAllKeys": "모든 키 쌍 이력을 삭제하시겠습니까?"
+  "confirm.clearAllKeys": "모든 키 쌍 이력을 삭제하시겠습니까?",
+
+  "label.rememberPublicKey": "이 키 기억",
+  "status.keyRemembered": "공개 키가 성공적으로 기억되었습니다",
+  
+  "importedKeyHistory.title": "기억된 공개 키",
+  "importedKeyHistory.desc": "로컬 파일에서 가져온 공개 키가 여기에 기억됩니다.",
+  "importedKeyHistory.count": "기억된 공개 키"
 }

@@ -92,5 +92,12 @@
   "select.keyDate": "Creado",
 
   "confirm.deleteKey": "¿Está seguro de que desea eliminar este par de claves?",
-  "confirm.clearAllKeys": "¿Está seguro de que desea eliminar todo el historial de pares de claves?"
+  "confirm.clearAllKeys": "¿Está seguro de que desea eliminar todo el historial de pares de claves?",
+
+  "label.rememberPublicKey": "Recordar esta clave",
+  "status.keyRemembered": "Clave pública recordada exitosamente",
+  
+  "importedKeyHistory.title": "Claves públicas recordadas",
+  "importedKeyHistory.desc": "Las claves públicas importadas desde archivos locales se recuerdan aquí.",
+  "importedKeyHistory.count": "Claves públicas recordadas"
 }

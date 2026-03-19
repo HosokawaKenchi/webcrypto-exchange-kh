@@ -94,5 +94,12 @@
   "select.keyDate": "Erstellt",
 
   "confirm.deleteKey": "Möchten Sie dieses Schlüsselpaar wirklich löschen?",
-  "confirm.clearAllKeys": "Möchten Sie den gesamten Schlüsselpaar-Verlauf wirklich löschen?"
+  "confirm.clearAllKeys": "Möchten Sie den gesamten Schlüsselpaar-Verlauf wirklich löschen?",
+
+  "label.rememberPublicKey": "Diesen Schlüssel merken",
+  "status.keyRemembered": "Öffentlicher Schlüssel erfolgreich gespeichert",
+  
+  "importedKeyHistory.title": "Gespeicherte öffentliche Schlüssel",
+  "importedKeyHistory.desc": "Öffentliche Schlüssel, die aus lokalen Dateien importiert wurden, werden hier gespeichert.",
+  "importedKeyHistory.count": "Gespeicherte öffentliche Schlüssel"
 }

@@ -92,5 +92,12 @@
   "select.keyDate": "Created",
 
   "confirm.deleteKey": "Are you sure you want to delete this key pair?",
-  "confirm.clearAllKeys": "Are you sure you want to delete all key pair history?"
+  "confirm.clearAllKeys": "Are you sure you want to delete all key pair history?",
+
+  "label.rememberPublicKey": "Remember this key",
+  "status.keyRemembered": "Public key remembered successfully",
+  
+  "importedKeyHistory.title": "Remembered Public Keys",
+  "importedKeyHistory.desc": "Public keys imported from local files are remembered here.",
+  "importedKeyHistory.count": "Remembered Public Keys"
 }

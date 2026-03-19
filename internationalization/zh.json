@@ -92,5 +92,12 @@
   "select.keyDate": "创建时间",
 
   "confirm.deleteKey": "您确定要删除此密钥对吗？",
-  "confirm.clearAllKeys": "您确定要删除所有密钥对历史记录吗？"
+  "confirm.clearAllKeys": "您确定要删除所有密钥对历史记录吗？",
+
+  "label.rememberPublicKey": "记住此密钥",
+  "status.keyRemembered": "公开密钥记住成功",
+  
+  "importedKeyHistory.title": "记住的公开密钥",
+  "importedKeyHistory.desc": "从本地文件导入的公开密钥在此处记住。",
+  "importedKeyHistory.count": "记住的公开密钥"
 }

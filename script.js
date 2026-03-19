@@ -4,6 +4,8 @@ let privateKey = null;
 
 // LocalStorage key for storing key history
 const KEY_HISTORY_STORAGE_KEY = 'wcx-key-history';
+// LocalStorage key for storing imported public keys
+const IMPORTED_PUBLIC_KEY_HISTORY_STORAGE_KEY = 'wcx-imported-public-keys';
 
 // Date/time formatting for filenames: YYYY-MM-DD-HH_MM
 function formatDateTimeForFilename(d = new Date()) {
@@ -50,6 +52,57 @@ function deleteKeyFromHistory(id) {
 
 function clearAllKeyHistory() {
     localStorage.removeItem(KEY_HISTORY_STORAGE_KEY);
+}
+
+// Imported public key history management
+function getImportedPublicKeyHistory() {
+    const stored = localStorage.getItem(IMPORTED_PUBLIC_KEY_HISTORY_STORAGE_KEY);
+    return stored ? JSON.parse(stored) : [];
+}
+
+function saveImportedPublicKeyToHistory(publicKeyPem) {
+    // Check if the key is already in history
+    if (isPublicKeyInImportedHistory(publicKeyPem)) {
+        return null; // Key already exists
+    }
+
+    const date = formatDateTimeForFilename(new Date());
+    const timestamp = Date.now();
+    const keyEntry = {
+        id: timestamp,
+        date: date,
+        timestamp: timestamp,
+        publicKeyPem: publicKeyPem
+    };
+    
+    const history = getImportedPublicKeyHistory();
+    history.push(keyEntry);
+    // Keep only last 10 imported keys to limit storage
+    if (history.length > 10) {
+        history.shift();
+    }
+    localStorage.setItem(IMPORTED_PUBLIC_KEY_HISTORY_STORAGE_KEY, JSON.stringify(history));
+    return keyEntry;
+}
+
+function deleteImportedPublicKeyFromHistory(id) {
+    let history = getImportedPublicKeyHistory();
+    history = history.filter(entry => entry.id !== id);
+    localStorage.setItem(IMPORTED_PUBLIC_KEY_HISTORY_STORAGE_KEY, JSON.stringify(history));
+}
+
+function clearAllImportedPublicKeyHistory() {
+    localStorage.removeItem(IMPORTED_PUBLIC_KEY_HISTORY_STORAGE_KEY);
+}
+
+function isPublicKeyInImportedHistory(publicKeyPem) {
+    const history = getImportedPublicKeyHistory();
+    // Normalize the PEM for comparison (remove whitespace differences)
+    const normalizedNewKey = publicKeyPem.replace(/\s/g, '');
+    return history.some(entry => {
+        const normalizedExisting = entry.publicKeyPem.replace(/\s/g, '');
+        return normalizedNewKey === normalizedExisting;
+    });
 }
 
 // Utility functions for key conversion
@@ -691,6 +744,118 @@ function updateKeySelectors() {
     }
 }
 
+// Update imported public key history display
+function updateImportedPublicKeyHistoryDisplay() {
+    const history = getImportedPublicKeyHistory();
+    const section = document.getElementById('importedPublicKeyHistorySection');
+    let container = document.getElementById('importedPublicKeyHistoryContainer');
+    
+    if (!container) return;
+    
+    if (history.length === 0) {
+        section.style.display = 'none';
+        container.innerHTML = '';
+        return;
+    }
+    
+    section.style.display = 'block';
+    const keyCount = history.length;
+    
+    // Compact header (always visible)
+    let html = `
+        <div class="imported-key-history-section">
+            <div class="key-history-header">
+                <button class="key-history-toggle-btn" id="importedKeyHistoryToggleBtn">
+                    <span class="toggle-arrow">▼</span>
+                    <span data-i18n="importedKeyHistory.count">記憶済み公開鍵</span>
+                    <span class="key-count">(${keyCount})</span>
+                </button>
+            </div>
+            <div class="key-history-content" id="importedKeyHistoryContent" style="display: none;">
+                <div class="key-history-list">
+    `;
+    
+    // Display in reverse order (newest first)
+    history.slice().reverse().forEach((entry) => {
+        const date = entry.date;
+        html += `
+            <div class="key-history-item">
+                <div class="key-history-info">
+                    <span class="key-history-date">${date}</span>
+                </div>
+                <div class="key-history-buttons">
+                    <button class="btn btn-secondary imported-key-download-btn" data-id="${entry.id}" data-i18n="btn.downloadPublicKey">公開鍵をダウンロード</button>
+                    <button class="btn btn-danger imported-key-delete-btn" data-id="${entry.id}" data-i18n="btn.deleteKey">削除</button>
+                </div>
+            </div>
+        `;
+    });
+    
+    html += `
+                </div>
+                <button class="btn btn-danger" id="clearAllImportedKeysBtn" data-i18n="btn.clearAllKeys">履歴をすべてクリア</button>
+            </div>
+        </div>
+    `;
+    
+    container.innerHTML = html;
+    
+    // Apply i18n to newly created elements
+    I18N.applyToDOM(container);
+    
+    // Toggle button
+    const toggleBtn = document.getElementById('importedKeyHistoryToggleBtn');
+    const content = document.getElementById('importedKeyHistoryContent');
+    const arrow = toggleBtn.querySelector('.toggle-arrow');
+    
+    if (toggleBtn) {
+        toggleBtn.addEventListener('click', () => {
+            const isHidden = content.style.display === 'none';
+            if (isHidden) {
+                content.style.display = 'block';
+                arrow.textContent = '▲';
+                toggleBtn.classList.add('expanded');
+            } else {
+                content.style.display = 'none';
+                arrow.textContent = '▼';
+                toggleBtn.classList.remove('expanded');
+            }
+        });
+    }
+    
+    // Attach event listeners
+    container.querySelectorAll('.imported-key-download-btn').forEach(btn => {
+        btn.addEventListener('click', async (e) => {
+            const id = parseInt(e.target.dataset.id);
+            const entry = history.find(h => h.id === id);
+            if (entry) {
+                const date = entry.date;
+                downloadFile(entry.publicKeyPem, `public_key_imported_${date}.pub`, 'text/plain');
+            }
+        });
+    });
+    
+    container.querySelectorAll('.imported-key-delete-btn').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+            const id = parseInt(e.target.dataset.id);
+            if (confirm(I18N.t('confirm.deleteKey'))) {
+                deleteImportedPublicKeyFromHistory(id);
+                updateImportedPublicKeyHistoryDisplay();
+            }
+        });
+    });
+    
+    const clearAllBtn = container.querySelector('#clearAllImportedKeysBtn');
+    if (clearAllBtn) {
+        clearAllBtn.addEventListener('click', () => {
+            if (confirm(I18N.t('confirm.clearAllKeys'))) {
+                clearAllImportedPublicKeyHistory();
+                updateImportedPublicKeyHistoryDisplay();
+            }
+        });
+    }
+}
+
 // Event listeners
 document.addEventListener('DOMContentLoaded', async () => {
     // Initialize i18n first (loads translations and applies to DOM)
@@ -702,9 +867,61 @@ document.addEventListener('DOMContentLoaded', async () => {
     document.getElementById('encryptFileBtn').addEventListener('click', encryptFile);
     document.getElementById('decryptFileBtn').addEventListener('click', decryptFile);
 
+    // Event listener for public key file input
+    const publicKeyFileInput = document.getElementById('publicKeyFile');
+    if (publicKeyFileInput) {
+        publicKeyFileInput.addEventListener('change', async (e) => {
+            const file = e.target.files[0];
+            const rememberCheckboxGroup = document.getElementById('rememberPublicKeyCheckboxGroup');
+            const rememberCheckbox = document.getElementById('rememberPublicKeyCheckbox');
+            
+            if (file) {
+                try {
+                    const pemContent = await readFileAsText(file);
+                    // Check if the key is already in imported history
+                    const keyExists = isPublicKeyInImportedHistory(pemContent);
+                    
+                    if (keyExists) {
+                        // Hide checkbox if key is already saved
+                        if (rememberCheckboxGroup) rememberCheckboxGroup.style.display = 'none';
+                    } else {
+                        // Show checkbox if key is new
+                        if (rememberCheckboxGroup) rememberCheckboxGroup.style.display = 'block';
+                        // Reset checkbox
+                        if (rememberCheckbox) rememberCheckbox.checked = false;
+                        
+                        // Set up one-time handler for checkbox
+                        // Remove old listeners to avoid duplicates
+                        const newCheckbox = rememberCheckbox.cloneNode(true);
+                        rememberCheckbox.parentNode.replaceChild(newCheckbox, rememberCheckbox);
+                        
+                        newCheckbox.addEventListener('change', () => {
+                            if (newCheckbox.checked) {
+                                const result = saveImportedPublicKeyToHistory(pemContent);
+                                if (result) {
+                                    showStatus('encryptStatus', 'success', I18N.t('status.keyRemembered'));
+                                    updateImportedPublicKeyHistoryDisplay();
+                                    // Hide checkbox after saving
+                                    if (rememberCheckboxGroup) rememberCheckboxGroup.style.display = 'none';
+                                }
+                            }
+                        });
+                    }
+                } catch (error) {
+                    console.error('Error reading public key file:', error);
+                    if (rememberCheckboxGroup) rememberCheckboxGroup.style.display = 'none';
+                }
+            } else {
+                // No file selected, hide the checkbox
+                if (rememberCheckboxGroup) rememberCheckboxGroup.style.display = 'none';
+            }
+        });
+    }
+
     // Initialize key history display
     updateKeyHistoryDisplay();
     updateKeySelectors();
+    updateImportedPublicKeyHistoryDisplay();
 
     // Language selector
     const langSelector = document.getElementById('langSelector');
@@ -729,6 +946,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             // Update key history display with new language
             updateKeyHistoryDisplay();
             updateKeySelectors();
+            updateImportedPublicKeyHistoryDisplay();
         });
     }
     

@@ -169,6 +169,13 @@
                 <input type="file" id="publicKeyFile" accept=".pub,application/x-pem-file" class="file-input">
             </div>
 
+            <div class="form-group" id="rememberPublicKeyCheckboxGroup" style="display: none;">
+                <label for="rememberPublicKeyCheckbox">
+                    <input type="checkbox" id="rememberPublicKeyCheckbox">
+                    <span data-i18n="label.rememberPublicKey">このキーを記憶</span>
+                </label>
+            </div>
+
             <div class="form-group">
                 <label for="fileToEncrypt" data-i18n="label.fileToEncrypt">暗号化するファイルを選択：</label>
                 <input type="file" id="fileToEncrypt" class="file-input">
@@ -176,6 +183,13 @@
             
             <button id="encryptFileBtn" class="btn btn-primary" data-i18n="btn.encryptFile">ファイルを暗号化</button>
             <div id="encryptStatus" class="status-message" style="display: none;"></div>
+        </section>
+
+        <!-- 読み込んだ公開鍵履歴セクション -->
+        <section class="section" id="importedPublicKeyHistorySection" style="display: none;">
+            <h2 data-i18n="importedKeyHistory.title">記憶済み公開鍵</h2>
+            <p data-i18n="importedKeyHistory.desc">ローカルファイルから読み込んだ公開鍵を記憶しています。</p>
+            <div id="importedPublicKeyHistoryContainer"></div>
         </section>
 
         <!-- ファイル復号セクション -->

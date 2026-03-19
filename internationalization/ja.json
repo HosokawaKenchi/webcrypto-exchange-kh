@@ -94,5 +94,12 @@
   "select.keyDate": "生成日",
 
   "confirm.deleteKey": "このキーペアを削除してもよろしいですか？",
-  "confirm.clearAllKeys": "すべての鍵ペア履歴を削除してもよろしいですか？"
+  "confirm.clearAllKeys": "すべての鍵ペア履歴を削除してもよろしいですか？",
+
+  "label.rememberPublicKey": "このキーを記憶",
+  "status.keyRemembered": "公開鍵を記憶しました",
+  
+  "importedKeyHistory.title": "記憶済み公開鍵",
+  "importedKeyHistory.desc": "ローカルファイルから読み込んだ公開鍵を記憶しています。",
+  "importedKeyHistory.count": "記憶済み公開鍵"
 }
